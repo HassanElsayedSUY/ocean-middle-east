@@ -1,0 +1,2371 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-lang-key="appTitle">أوشن ميدل إيست</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Cropper.js CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+    
+    <style>
+        /* Define CSS variables for colors in light mode */
+        :root {
+            --bg-color: #f8f9fa; /* Very light gray */
+            --text-color-dark: #212529; /* Dark charcoal */
+            --text-color-medium: #495057; /* Medium gray */
+            --text-color-light: #6c757d; /* Lighter gray */
+            --card-bg: #ffffff; /* Pure white */
+            --border-color: #e9ecef; /* Light border gray */
+            --input-bg: #e9ecef; /* Very light gray for inputs */
+            --primary-color: #007bff; /* Vibrant blue */
+            --primary-hover: #0056b3; /* Darker blue on hover */
+            --secondary-color: #6c757d; /* Muted gray */
+            --secondary-hover: #5a6268; /* Darker muted gray */
+            --success-color: #28a745; /* Green */
+            --success-hover: #218838; /* Darker green */
+            --danger-color: #dc3545; /* Red */
+            --danger-hover: #c82333; /* Darker red */
+            --shadow-color: rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            --gradient-start: #007bff;
+            --gradient-end: #0056b3;
+        }
+
+        /* Define CSS variables for colors in dark mode */
+        body.dark-mode {
+            --bg-color: hsl(220, 15%, 12%); /* Very dark desaturated blue */
+            --text-color-dark: hsl(210, 20%, 95%); /* Near white */
+            --text-color-medium: hsl(210, 10%, 70%); /* Light gray */
+            --text-color-light: hsl(210, 5%, 50%); /* Medium gray */
+            --card-bg: hsl(220, 15%, 18%); /* Slightly lighter than bg, for distinction */
+            --border-color: hsl(220, 10%, 25%); /* Darker border gray */
+            --input-bg: hsl(220, 10%, 22%); /* Darker input backgrounds */
+            --primary-color: hsl(200, 70%, 60%); /* Vibrant light blue */
+            --primary-hover: hsl(200, 70%, 50%); /* Darker vibrant blue */
+            --secondary-color: hsl(210, 10%, 70%); /* Lighter muted gray */
+            --secondary-hover: hsl(210, 5%, 50%); /* Darker muted gray */
+            --success-color: hsl(140, 60%, 45%); /* Lighter green */
+            --success-hover: hsl(140, 60%, 35%); /* Slightly darker green */
+            --danger-color: hsl(0, 70%, 60%); /* Lighter red */
+            --danger-hover: hsl(0, 70%, 50%); /* Slightly darker red */
+            --shadow-color: rgba(0, 0, 0, 0.4); /* More pronounced shadow */
+            --gradient-start: hsl(200, 70%, 55%);
+            --gradient-end: hsl(200, 70%, 45%);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color-dark);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .modal-container {
+            transition: opacity 0.3s ease-in-out, visibility 0.3s;
+        }
+        .modal-container.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal-content {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Added opacity transition */
+            transform: translateY(100%);
+            opacity: 0; /* Start hidden */
+            background-color: var(--card-bg);
+            color: var(--text-color-dark);
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color);
+            max-height: 90vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-container:not(.hidden) .modal-content {
+            transform: translateY(0);
+            opacity: 1; /* Fade in */
+        }
+        .category-btn {
+            background-color: var(--input-bg);
+            color: var(--text-color-medium);
+            transition: background-color 0.2s, color 0.2s, transform 0.2s ease, box-shadow 0.2s ease; /* Added transform and box-shadow */
+            border-radius: 9999px; /* Rounded full */
+            padding: 0.5rem 1.25rem; /* px-5 py-2 */
+            font-weight: 600; /* font-semibold */
+        }
+        .category-btn.active {
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+        }
+        .category-btn:hover:not(.active) {
+            background-color: var(--border-color);
+            transform: translateY(-2px); /* Lift on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Subtle shadow on hover */
+        }
+        .social-icon:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        .nav-btn {
+            color: var(--text-color-light);
+            transition: color 0.2s;
+        }
+        .nav-btn:hover {
+            color: var(--primary-color);
+        }
+        .nav-btn.active {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        /* --- Animation Keyframes --- */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95); /* Added scale */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* --- Animation Class --- */
+        .product-card-animation {
+            opacity: 0; 
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        /* Style for edit/delete buttons on category/product */
+        .action-button {
+            background-color: var(--input-bg);
+            color: var(--text-color-medium);
+            border-radius: 9999px; /* rounded-full */
+            padding: 0.5rem; /* p-2 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, color 0.2s, transform 0.2s ease, box-shadow 0.2s ease; /* Added transform and box-shadow */
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); /* Default subtle shadow */
+        }
+        .action-button:hover {
+            background-color: var(--border-color);
+            transform: translateY(-1px); /* Subtle lift */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+        .action-button.edit:hover {
+            background-color: var(--success-hover);
+            color: white;
+        }
+        .action-button.delete:hover {
+            background-color: var(--danger-hover);
+            color: white;
+        }
+        /* Specific styles for add/edit/delete buttons for better visibility and interaction */
+        .btn-add-item {
+            background: linear-gradient(to right, var(--primary-color), var(--gradient-end));
+            color: white;
+            border-radius: 9999px;
+            padding: 0.6rem; /* Adjusted padding */
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px; /* Adjusted width for circular button */
+            height: 44px; /* Adjusted height for circular button */
+        }
+        .btn-add-item:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -2px var(--shadow-color);
+        }
+        .btn-add-item i {
+            font-size: 1.3rem; /* Adjusted icon size */
+        }
+
+        /* General styles for main elements to adapt to dark mode */
+        #main-page, header, footer, .bg-white, .bg-gray-50 {
+            background-color: var(--card-bg);
+            color: var(--text-color-dark);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        /* Ensure cart page background is dark in dark mode */
+        #cart-page {
+            background-color: var(--bg-color); /* Use the general background color for cart page */
+            transition: background-color 0.3s ease;
+        }
+        /* Override specific Tailwind classes to use CSS variables for dark mode */
+        .bg-gray-100 { background-color: var(--bg-color); transition: background-color 0.3s ease; }
+        .text-gray-800 { color: var(--text-color-dark); transition: color 0.3s ease; }
+        .text-gray-700 { color: var(--text-color-medium); transition: color 0.3s ease; }
+        .text-gray-500 { color: var(--text-color-light); transition: color 0.3s ease; }
+        .text-gray-900 { color: var(--text-color-dark); transition: color 0.3s ease; }
+        .border-b, .border-t { border-color: var(--border-color); transition: border-color 0.3s ease; }
+        .border-blue-600 { border-color: var(--primary-color); transition: border-color 0.3s ease; }
+        .text-blue-600 { color: var(--primary-color); transition: color 0.3s ease; }
+        .bg-blue-600 { background-color: var(--primary-color); transition: background-color 0.3s ease; }
+        .hover\:bg-blue-700:hover { background-color: var(--primary-hover); }
+        .bg-red-600 { background-color: var(--danger-color); transition: background-color 0.3s ease; }
+        .hover\:bg-red-700:hover { background-color: var(--danger-hover); }
+        .bg-green-500 { background-color: var(--success-color); transition: background-color 0.3s ease; }
+        .bg-gray-200 { background-color: var(--input-bg); transition: background-color 0.3s ease; }
+        .text-gray-600 { color: var(--text-color-medium); transition: color 0.3s ease; }
+        .bg-black\/50 { background-color: rgba(0, 0, 0, 0.5); } /* Keep overlay dark */
+        input[type="text"], input[type="number"], input[type="password"], select {
+            background-color: var(--input-bg);
+            color: var(--text-color-dark);
+            border-color: var(--border-color);
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        input:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* Specific styling for the success/error toast-like messages */
+        
+        /* Style for Cart Counter to make it shiny and in a circle */
+#cart-counter-main {
+    background-color: var(--primary-color); /* عشان يبقى لون جذاب ومختلف */
+    color: white; /* عشان الرقم يكون واضح على الخلفية */
+    box-shadow: 0 0 10px 3px var(--primary-color); /* تأثير إضاءة لامع */
+    /* التأثير ده عشان يدي شكل ثلاثي الأبعاد ولمعة خفيفة */
+    animation: pulse-glow 1.5s infinite alternate; /* حركة نبضية خفيفة */
+}
+
+@keyframes pulse-glow {
+    from {
+        box-shadow: 0 0 5px 2px var(--primary-color);
+    }
+    to {
+        box-shadow: 0 0 10px 5px var(--primary-color);
+    }
+}
+        
+        
+        
+        
+        
+        .toast-message {
+            position: fixed;
+            bottom: 6rem; /* Above the navigation bar */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--success-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            z-index: 70; /* Higher than modals */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-out, visibility 0.3s ease-out, transform 0.3s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 250px;
+            text-align: center;
+            justify-content: center;
+        }
+        .toast-message.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-20px); /* Slight lift animation */
+        }
+        .toast-message.error {
+            background-color: var(--danger-color);
+        }
+        .toast-message.loading { /* New style for loading toast */
+            background-color: var(--primary-color);
+        }
+        .toast-message svg {
+            flex-shrink: 0;
+        }
+
+        /* New styles for modal content to prevent individual input scrolls */
+        .modal-content .modal-body {
+            flex-grow: 1; /* Allows the body to take available space */
+            overflow-y: auto; /* Enables scrolling for the entire body content */
+            padding-bottom: 1rem; /* Add some padding at the bottom for scroll comfort */
+            padding-top: 1rem; /* Add some padding at the top for scroll comfort */
+        }
+
+        /* Cropper Modal Specific Styles */
+        #image-cropper-modal-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #image-cropper-modal-container .modal-content {
+            width: 95%;
+            max-width: 600px;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+        }
+        #image-cropper-modal-container .modal-body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            max-height: 70vh;
+            overflow: hidden;
+        }
+        #image-cropper-modal-container img {
+            display: block;
+            max-width: 100%;
+        }
+
+        /* Button styling with gradients and shadows */
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary-color), var(--gradient-end));
+            color: white;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -2px var(--shadow-color);
+        }
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: var(--secondary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -2px var(--shadow-color);
+        }
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -2px var(--shadow-color);
+        }
+        .btn-outline-primary {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 640px) {
+            .modal-content {
+                width: 95%;
+                margin: 0 auto;
+            }
+            .product-card-animation {
+                margin-bottom: 1rem; /* Add some space between cards on small screens */
+            }
+        }
+
+        /* Glass Pane Overlay Styles */
+        #glass-pane {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.1); /* Slightly transparent background */
+            backdrop-filter: blur(8px); /* Glass effect */
+            -webkit-backdrop-filter: blur(8px); /* For Safari */
+            z-index: 9999; /* Ensure it's on top */
+            transform: translateX(100%); /* Start off-screen to the right */
+            transition: transform 0.4s ease-out; /* Smooth slide transition */
+        }
+
+        #glass-pane.show {
+            transform: translateX(0); /* Slide into view */
+        }
+
+        /* Admin image wrappers for hover effect */
+        #header-left-logo-wrapper.admin-active,
+        #main-logo-wrapper.admin-active,
+        #main-header-image.admin-active {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #header-left-logo-wrapper.admin-active:hover,
+        #main-logo-wrapper.admin-active:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #main-header-image.admin-active:hover {
+            transform: scale(1.01);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Glass Pane Overlay -->
+    <div id="glass-pane"></div>
+
+    <!-- Main App Page -->
+    <div id="main-page" class="max-w-sm mx-auto bg-white shadow-lg relative min-h-screen rounded-lg overflow-hidden">
+        <div class="flex flex-col h-screen">
+            <!-- Header -->
+            <header class="p-4 flex justify-between items-center bg-white border-b sticky top-0 z-20 shrink-0">
+                 <div>
+                     <!-- Replace SVG with Image for Header Logo and make it clickable -->
+                     <div class="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden cursor-pointer shadow-md" id="header-left-logo-wrapper">
+                        <img id="header-left-logo-image" src="https://placehold.co/32x32/ccc/333?text=Logo" 
+                             alt="شعار جانبي" 
+                             class="w-full h-full object-cover rounded-full">
+                        <input type="file" id="header-left-logo-input" class="hidden" accept="image/*">
+                     </div>
+                </div>
+                <h1 class="text-xl font-bold text-gray-800" data-lang-key="appName">أوشن ميدل إيست</h1>
+                <div class="flex items-center space-x-2 space-x-reverse">
+                    <!-- Dark Mode Toggle Button -->
+                    <button id="theme-toggle-btn" class="text-gray-600 font-semibold p-2 rounded-full hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <!-- Language Toggle Button -->
+                    <button id="language-toggle-btn" class="text-gray-600 font-semibold" data-lang-key="langButtonText">EN</button>
+                </div>
+            </header>
+    
+            <!-- Main Content -->
+            <main class="flex-grow overflow-y-auto pb-24">
+                <!-- Header Image with Edit Button -->
+                <div class="relative">
+                    <img id="main-header-image" src="https://placehold.co/400x300/f0f0f0/333?text=Header+Image" 
+                         alt="صورة سمك الزبيدي على لوح تقطيع" 
+                         class="w-full h-96 object-cover cursor-pointer"> <!-- Adjusted height to h-96 and added cursor-pointer -->
+                    <button id="edit-header-image-btn" class="absolute bottom-2 left-2 bg-primary-color text-white rounded-full p-2 shadow-md hover:bg-primary-hover transition-colors hidden">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <input type="file" id="header-image-input" class="hidden" accept="image/*">
+                </div>
+                
+                <!-- START: Content Area with Logo -->
+                <div class="bg-white transform -translate-y-8 rounded-t-3xl px-4 pb-4 shadow-xl"> <!-- Added shadow-xl -->
+                     
+                     <!-- Logo Section with direct click -->
+                     <div class="flex justify-center -mt-14 relative z-10">
+                        <div class="w-24 h-24 p-1 bg-white rounded-full border-4 border-white shadow-lg relative cursor-pointer" id="main-logo-wrapper">
+                            <!-- يمكنك تغيير رابط الصورة هنا -->
+                            <img id="main-logo-image" src="https://placehold.co/96x96/f0f0f0/333?text=Logo" 
+                                 alt="شعار زبيدي الكويت" 
+                                 class="w-full h-full object-cover rounded-full"> <!-- Removed cursor-pointer from img, now on wrapper -->
+                            <input type="file" id="logo-image-input" class="hidden" accept="image/*">
+                        </div>
+                    </div>
+                     
+                     <div class="flex justify-center items-center text-center mt-4"> <!-- Centered the delivery option -->
+                        <div class="flex-1 p-2">
+                            <h3 class="font-bold text-gray-800" data-lang-key="deliveryOption">توصيل</h3>
+                        </div>
+                        <!-- Removed "الإستلام" section -->
+                    </div>
+                    <div class="mt-4 text-center px-2"> <!-- Added px-2 for consistent spacing -->
+                        <div class="relative w-full">
+                            <input type="text" data-lang-key="searchPlaceholder" placeholder="ابحث عن ما تريد..." class="w-full bg-input-bg border-none rounded-full py-2 px-10 text-right focus:ring-2 focus:ring-primary-color">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- END: Content Area with Logo -->
+    
+                <!-- Category section with Add Category button -->
+                <div class="px-4 pb-4 -mt-2 sticky top-0 bg-white z-10 py-2 shadow-md"> <!-- Added shadow-md -->
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-xl font-bold text-gray-800" data-lang-key="categoriesTitle">الأقسام</h2>
+                        <!-- Add Category Button -->
+                        <button id="add-category-btn" class="btn-add-item hidden">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="category-container" class="flex space-x-2 space-x-reverse overflow-x-auto no-scrollbar py-2"></div> <!-- Added py-2 -->
+                </div>
+                
+                <!-- Product list header with Add Product button -->
+                <div class="px-4 mt-4 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-800" data-lang-key="productsTitle">المنتجات</h2>
+                    <!-- Add Product Button -->
+                    <button id="add-product-btn" class="btn-add-item hidden">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <div id="product-list" class="px-4 space-y-8"></div>
+            </main>
+            
+            <!-- Bottom Navigation Bar -->
+            <footer class="fixed bottom-0 left-0 right-0 max-w-sm mx-auto bg-white/90 backdrop-blur-sm border-t flex justify-around py-2 z-30 shrink-0 rounded-t-lg shadow-lg">
+                <button id="nav-btn-more" class="nav-btn text-center text-gray-500 hover:text-primary-color transition-colors">
+                    <i class="fas fa-ellipsis-h mx-auto text-xl"></i>
+                    <span class="text-xs font-semibold" data-lang-key="navMore">المزيد</span>
+                </button>
+                <button id="nav-btn-cart" class="nav-btn text-center text-gray-500 hover:text-primary-color transition-colors relative">
+                     <div id="cart-counter-main" class="absolute -top-1 -right-3 bg-danger-color text-red-700 text-sm font-bold rounded-full h-4 w-4 flex items-center justify-center">0</div>
+                    <i class="fas fa-shopping-cart mx-auto text-xl"></i>
+                    <span class="text-xs font-semibold" data-lang-key="navCart">السلة</span>
+                </button>
+                <!-- Changed from "حالة الطلب" to "البروفايل" -->
+                <button id="nav-btn-profile" class="nav-btn text-center text-gray-500 hover:text-primary-color transition-colors">
+                    <i class="fas fa-user-circle mx-auto text-xl"></i>
+                    <span class="text-xs font-semibold" data-lang-key="navProfile">البروفايل</span>
+                </button>
+                <a href="#" id="nav-btn-menu" class="nav-btn text-center text-gray-500 hover:text-primary-color transition-colors">
+                    <i class="fas fa-bars mx-auto text-xl"></i>
+                    <span class="text-xs font-semibold" data-lang-key="navMenu">القائمة</span>
+                </a>
+            </footer>
+        </div>
+    </div>
+    
+    <!-- Cart Page -->
+    <div id="cart-page" class="max-w-sm mx-auto bg-gray-50 min-h-screen hidden rounded-lg overflow-hidden">
+        <div class="flex flex-col h-screen">
+            <!-- Cart Header -->
+            <header class="p-4 flex justify-between items-center bg-white border-b shrink-0 sticky top-0 z-10">
+                <div class="flex items-center space-x-2">
+                     <!-- Replace SVG with Image for Header Logo in Cart Page -->
+                     <div class="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden shadow-md">
+                         <img id="cart-header-left-logo-image" src="https://placehold.co/32x32/ccc/333?text=Logo" 
+                              alt="شعار جانبي" 
+                              class="w-full h-full object-cover rounded-full">
+                     </div>
+                     <button class="text-gray-600 font-semibold" data-lang-key="langButtonText"></button>
+                </div>
+                <h1 class="text-lg font-bold text-primary-color" data-lang-key="reviewOrder">قم بمراجعة الطلب</h1>
+                <button id="back-to-main-btn">
+                    <i class="fas fa-arrow-right text-gray-700 text-xl"></i>
+                </button>
+            </header>
+            
+            <main id="cart-content-area" class="flex-grow overflow-y-auto"></main>
+            
+            <footer id="cart-footer-area" class="p-4 bg-white border-t shrink-0 hidden rounded-t-lg shadow-lg"></footer>
+        </div>
+    </div>
+
+
+    <!-- More Menu Modal (existing) -->
+    <div id="more-menu-container" class="modal-container fixed inset-0 bg-black/50 z-40 hidden">
+        <div id="more-menu-content" class="modal-content fixed bottom-0 left-0 right-0 max-w-sm mx-auto bg-white rounded-t-2xl shadow-2xl z-50 overflow-hidden">
+             <div class="relative flex justify-center items-center p-4 border-b-2 border-primary-color">
+                <h2 class="text-lg font-bold text-gray-900" data-lang-key="moreTitle">المزيد</h2>
+                <button id="close-more-menu" class="absolute left-4 w-8 h-8 bg-input-bg hover:bg-border-color rounded-full flex items-center justify-center text-gray-600 transition-colors shadow-md">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+            <div class="p-4">
+                 <div class="space-y-2">
+                    <a href="https://maps.app.goo.gl/b3krRpZrERxgUfyp9" class="flex items-center justify-between py-3 rounded-md hover:bg-input-bg px-2 transition-colors"><div class="flex items-center"><i class="fas fa-map-marker-alt text-primary-color w-6 h-6"></i><span class="font-semibold text-gray-800 mr-4 text-base" data-lang-key="contactUs">إتصل بنا</span></div><i class="fas fa-chevron-left w-5 h-5 text-gray-400"></i></a>
+                    <!-- Updated 'من نحن' link to open the new modal -->
+                    <a href="#" id="open-about-us-modal-btn" class="flex items-center justify-between py-3 rounded-md hover:bg-input-bg px-2 transition-colors"><div class="flex items-center"><i class="fas fa-info-circle text-primary-color w-6 h-6"></i><span class="font-semibold text-gray-800 mr-4 text-base" data-lang-key="aboutUs">من نحن</span></div><i class="fas fa-chevron-left w-5 h-5 text-gray-400"></i></a>
+                    <a href="#" class="flex items-center justify-between py-3 rounded-md hover:bg-input-bg px-2 transition-colors"><div class="flex items-center"><i class="fas fa-shield-alt text-primary-color w-6 h-6"></i><span class="font-semibold text-gray-800 mr-4 text-base" data-lang-key="privacyPolicy">سياسة الخصوصية</span></div><i class="fas fa-chevron-left w-5 h-5 text-gray-400"></i></a>
+                </div>
+                <div class="flex justify-around items-center my-6"><a href="https://www.facebook.com/share/1HSKQzwVKk/?mibextid=wwXIfr" class="social-icon text-primary-color"><i class="fab fa-facebook-square text-3xl"></i></a><a href="https://www.instagram.com/fish_agypt_?igsh=Y2o0aG5nejFub3kw&utm_source=qr" class="social-icon text-primary-color"><i class="fab fa-instagram-square text-3xl"></i></a><a href="+201055659049" class="social-icon text-primary-color"><i class="fas fa-phone-square-alt text-3xl"></i></a><a href="https://wa.me/+201055659049" class="social-icon text-primary-color"><i class="fab fa-whatsapp-square text-3xl"></i></a><a href="https://t.me/+201055659049" class="social-icon text-primary-color"><i class="fab fa-telegram-plane text-3xl"></i></a></div>
+                <div class="text-center mt-6 pb-2"><p class="text-sm text-gray-500" data-lang-key="poweredBy">بدعم من م/ حسن السيد علي </p><div class="flex justify-center items-center space-x-3 mt-2"><a href="https://wa.me/+201010078128" class="social-icon text-primary-color"><i class="fab fa-whatsapp-square text-3xl"></i></a></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Us Modal (New) -->
+    <div id="about-us-modal-container" class="modal-container fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-sm">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 text-right" data-lang-key="aboutUsTitle">عن أوشن ميدل إيست</h2>
+            <div class="modal-body text-right text-gray-700 space-y-4">
+                <p data-lang-key="aboutUsParagraph1">
+                    في "أوشن ميدل إيست"، نؤمن بأن جودة المأكولات البحرية تبدأ من مصدرها. لذلك، نلتزم بتقديم أجود أنواع الأسماك الطازجة والمأكولات البحرية الفاخرة، التي يتم اصطيادها بعناية فائقة من أعماق البحار النقية، لتصل إليك بأقصى درجات النضارة والطعم الأصيل.
+                </p>
+                <p data-lang-key="aboutUsParagraph2">
+                    نحن نفخر بكوننا جسراً يربط بين كنوز المحيط ومائدتك، مع التزامنا الصارم بمعايير الجودة العالمية والاستدامة البيئية. فريقنا المتخصص يعمل بلا كلل لضمان أن كل قطعة سمك تصل إليك هي قصة نجاح في النضارة والنكهة.
+                </p>
+                <p data-lang-key="aboutUsParagraph3">
+                    "أوشن ميدل إيست" ليست مجرد شركة أسماك، بل هي شغف بالمذاق الرفيع، والتزام بالصحة، ووعد بتقديم تجربة طعام بحري لا تُنسى. انضم إلينا في رحلة استكشاف عالم النكهات البحرية الغنية، ودعنا نثري مائدتك بأشهى ما في المحيط.
+                </p>
+                <p data-lang-key="aboutUsParagraph4" class="font-semibold text-primary-color">
+                    "أوشن ميدل إيست: حيث يلتقي المحيط بمائدتك بأبهى صورة."
+                </p>
+            </div>
+            <div class="flex justify-end space-x-2 space-x-reverse mt-4">
+                <button id="close-about-us-modal" class="btn-primary" data-lang-key="closeButton">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div id="add-category-modal-container" class="modal-container fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-sm">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 text-right" data-lang-key="addCategoryTitle">إضافة قسم جديد</h2>
+            <div class="modal-body"> <!-- Added modal-body for scrollable content -->
+                <div class="mb-4">
+                    <label for="new-category-name-ar" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="categoryNameAr">اسم القسم (عربي):</label>
+                    <input type="text" id="new-category-name-ar" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right" data-lang-key="categoryNamePlaceholderAr" placeholder="ادخل اسم القسم بالعربي">
+                </div>
+                <div class="mb-4">
+                    <label for="new-category-name-en" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="categoryNameEn">اسم القسم (إنجليزي):</label>
+                    <input type="text" id="new-category-name-en" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-left" data-lang-key="categoryNamePlaceholderEn" placeholder="Enter category name in English">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 space-x-reverse">
+                <button id="close-add-category-modal" class="btn-secondary" data-lang-key="cancelButton">إلغاء</button>
+                <button id="save-category-btn" class="btn-primary" data-lang-key="saveCategoryButton">حفظ القسم</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Category Modal -->
+    <div id="edit-category-modal-container" class="modal-container fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-sm">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 text-right" data-lang-key="editCategoryTitle">تعديل القسم</h2>
+            <div class="modal-body"> <!-- Added modal-body for scrollable content -->
+                <div class="mb-4">
+                    <label for="edit-category-name-ar" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="categoryNameAr">اسم القسم (عربي):</label>
+                    <input type="text" id="edit-category-name-ar" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right" data-lang-key="categoryNamePlaceholderAr" placeholder="ادخل اسم القسم الجديد بالعربي">
+                </div>
+                <div class="mb-4">
+                    <label for="edit-category-name-en" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="categoryNameEn">اسم القسم (إنجليزي):</label>
+                    <input type="text" id="edit-category-name-en" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-left" data-lang-key="categoryNamePlaceholderEn" placeholder="Enter new category name in English">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 space-x-reverse">
+                <button id="close-edit-category-modal" class="btn-secondary" data-lang-key="cancelButton">إلغاء</button>
+                <button id="save-edited-category-btn" class="btn-primary" data-lang-key="saveChangesButton">حفظ التعديلات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="add-product-modal-container" class="modal-container fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-sm">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 text-right" data-lang-key="addProductTitle">إضافة منتج جديد</h2>
+            <div class="modal-body"> <!-- Added modal-body for scrollable content -->
+                <div class="mb-4">
+                    <label for="new-product-name-ar" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productNameAr">اسم المنتج (عربي):</label>
+                    <input type="text" id="new-product-name-ar" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right" data-lang-key="productNamePlaceholderAr" placeholder="ادخل اسم المنتج بالعربي">
+                </div>
+                <div class="mb-4">
+                    <label for="new-product-name-en" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productNameEn">اسم المنتج (إنجليزي):</label>
+                    <input type="text" id="new-product-name-en" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-left" data-lang-key="productNamePlaceholderEn" placeholder="Enter product name in English">
+                </div>
+                <div class="mb-4">
+                    <label for="new-product-desc-ar" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productDescAr">الوصف (عربي):</label>
+                    <input type="text" id="new-product-desc-ar" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right" data-lang-key="productDescPlaceholderAr" placeholder="ادخل وصف المنتج بالعربي">
+                </div>
+                <div class="mb-4">
+                    <label for="new-product-desc-en" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productDescEn">الوصف (إنجليزي):</label>
+                    <input type="text" id="new-product-desc-en" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-left" data-lang-key="productDescPlaceholderEn" placeholder="Enter product description in English">
+                </div>
+                <div class="mb-4">
+                    <label for="new-product-price" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productPrice">السعر (ج.م):</label>
+                    <input type="number" id="new-product-price" step="0.001" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right" data-lang-key="productPricePlaceholder" placeholder="ادخل سعر المنتج">
+                </div>
+                <div class="mb-4">
+                    <label for="new-product-img" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productImgUrl">رابط الصورة (اختياري):</label>
+                    <input type="text" id="new-product-img" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right" data-lang-key="productImgUrlPlaceholder" placeholder="ادخل رابط صورة المنتج">
+                    <p class="text-gray-500 text-xs mt-1 text-right" data-lang-key="orText">أو</p>
+                </div>
+                <div class="mb-4">
+                    <label for="new-product-img-file" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productImgFile">اختر صورة من جهازك (اختياري):</label>
+                    <input type="file" id="new-product-img-file" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right" accept="image/*">
+                    <img id="new-product-img-preview" class="mt-2 hidden w-24 h-24 object-cover rounded-md mx-auto" src="" alt="معاينة الصورة">
+                </div>
+                <div class="mb-4">
+                    <label for="new-product-category" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productCategory">القسم:</label>
+                    <select id="new-product-category" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right">
+                        <!-- Categories will be loaded here by JavaScript -->
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 space-x-reverse">
+                <button id="close-add-product-modal" class="btn-secondary" data-lang-key="cancelButton">إلغاء</button>
+                <button id="save-product-btn" class="btn-primary" data-lang-key="saveProductButton">حفظ المنتج</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="edit-product-modal-container" class="modal-container fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-sm">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 text-right" data-lang-key="editProductTitle">تعديل المنتج</h2>
+            <div class="modal-body"> <!-- Added modal-body for scrollable content -->
+                <div class="mb-4">
+                    <label for="edit-product-name-ar" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productNameAr">اسم المنتج (عربي):</label>
+                    <input type="text" id="edit-product-name-ar" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right" data-lang-key="productNamePlaceholderAr" placeholder="ادخل اسم المنتج الجديد بالعربي">
+                </div>
+                <div class="mb-4">
+                    <label for="edit-product-name-en" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productNameEn">اسم المنتج (إنجليزي):</label>
+                    <input type="text" id="edit-product-name-en" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-left" data-lang-key="productNamePlaceholderEn" placeholder="Enter new product name in English">
+                </div>
+                <div class="mb-4">
+                    <label for="edit-product-desc-ar" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productDescAr">الوصف (عربي):</label>
+                    <input type="text" id="edit-product-desc-ar" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right" data-lang-key="productDescPlaceholderAr" placeholder="ادخل وصف المنتج الجديد بالعربي">
+                </div>
+                <div class="mb-4">
+                    <label for="edit-product-desc-en" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productDescEn">الوصف (إنجليزي):</label>
+                    <input type="text" id="edit-product-desc-en" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-left" data-lang-key="productDescPlaceholderEn" placeholder="Enter new product description in English">
+                </div>
+                <div class="mb-4">
+                    <label for="edit-product-price" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productPrice">السعر (ج.م):</label>
+                    <input type="number" id="edit-product-price" step="0.001" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right" data-lang-key="productPricePlaceholder" placeholder="ادخل سعر المنتج الجديد">
+                </div>
+                <div class="mb-4">
+                    <label for="edit-product-img" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productImgUrl">رابط الصورة (اختياري):</label>
+                    <input type="text" id="edit-product-img" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right" data-lang-key="productImgUrlPlaceholder" placeholder="ادخل رابط صورة المنتج الجديد">
+                    <p class="text-gray-500 text-xs mt-1 text-right" data-lang-key="orText">أو</p>
+                </div>
+                <div class="mb-4">
+                    <label for="edit-product-img-file" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productImgFile">اختر صورة من جهازك (اختياري):</label>
+                    <input type="file" id="edit-product-img-file" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right" accept="image/*">
+                    <img id="edit-product-img-preview" class="mt-2 hidden w-24 h-24 object-cover rounded-md mx-auto" src="" alt="معاينة الصورة">
+                </div>
+                <div class="mb-4">
+                    <label for="edit-product-category" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="productCategory">القسم:</label>
+                    <select id="edit-product-category" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right">
+                        <!-- Categories will be loaded here by JavaScript -->
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-2 space-x-reverse">
+                <button id="close-edit-product-modal" class="btn-secondary" data-lang-key="cancelButton">إلغاء</button>
+                <button id="save-edited-product-btn" class="btn-primary" data-lang-key="saveChangesButton">حفظ التعديلات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal-container" class="modal-container fixed inset-0 bg-black/50 z-60 hidden flex items-center justify-center">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-sm text-center">
+            <h2 class="text-xl font-bold mb-4 text-gray-800" id="confirmation-modal-title"></h2>
+            <p class="text-gray-700 mb-6" id="confirmation-modal-message"></p>
+            <div class="flex justify-end space-x-2 space-x-reverse">
+                <button id="confirm-cancel-btn" class="btn-secondary" data-lang-key="cancelButton">إلغاء</button>
+                <button id="confirm-ok-btn" class="btn-danger" data-lang-key="confirmButton">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal-container" class="modal-container fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-sm">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 text-right" data-lang-key="loginTitle">تسجيل الدخول</h2>
+            <div class="modal-body"> <!-- Added modal-body for scrollable content -->
+                <div class="mb-4">
+                    <label for="login-email" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="emailUsername">البريد الإلكتروني / اسم المستخدم:</label>
+                    <input type="text" id="login-email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right" data-lang-key="emailUsernamePlaceholder" placeholder="أدخل بريدك الإلكتروني أو اسم المستخدم">
+                </div>
+                <div class="mb-6">
+                    <label for="login-password" class="block text-gray-700 text-sm font-bold mb-2 text-right" data-lang-key="password">كلمة السر:</label>
+                    <input type="password" id="login-password" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline text-right" data-lang-key="passwordPlaceholder" placeholder="********">
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button id="login-btn" class="btn-primary w-full" data-lang-key="loginButton">تسجيل الدخول</button>
+            </div>
+            <div class="text-center mt-4">
+                <a href="#" id="create-account-link" class="inline-block align-baseline font-bold text-sm text-primary-color hover:text-primary-hover" data-lang-key="createAccountLink">
+                    إنشاء حساب جديد
+                </a>
+            </div>
+            <button id="close-login-modal" class="absolute top-3 left-3 w-8 h-8 bg-input-bg hover:bg-border-color rounded-full flex items-center justify-center text-gray-600 transition-colors shadow-md">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Message Container (for success/error notifications) -->
+    <div id="toast-container" class="toast-message">
+        <span id="toast-icon"></span>
+        <span id="toast-text"></span>
+    </div>
+
+    <!-- Admin Profile Modal -->
+    <div id="admin-profile-modal-container" class="modal-container fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-sm text-center">
+            <h2 class="text-xl font-bold mb-4 text-gray-800" data-lang-key="loggedInAsAdminTitle">تم تسجيل الدخول كمسؤول</h2>
+            <p class="text-gray-700 mb-6" data-lang-key="adminPrivilegesMessage">لديك الآن صلاحيات الإدارة الكاملة.</p>
+            <button id="logout-btn" class="btn-danger w-full" data-lang-key="logoutButton">تسجيل الخروج</button>
+            <button id="close-admin-profile-modal" class="absolute top-3 left-3 w-8 h-8 bg-input-bg hover:bg-border-color rounded-full flex items-center justify-center text-gray-600 transition-colors shadow-md">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Image Cropper Modal -->
+    <div id="image-cropper-modal-container" class="modal-container fixed inset-0 bg-black/50 z-60 hidden flex items-center justify-center">
+        <div class="modal-content bg-white p-6 rounded-lg shadow-xl w-11/12 max-w-sm">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 text-right" data-lang-key="cropImageTitle">قص الصورة</h2>
+            <div class="modal-body">
+                <img id="image-to-crop" src="" alt="Image to crop">
+            </div>
+            <div class="flex justify-end space-x-2 space-x-reverse mt-4">
+                <button id="cancel-crop-btn" class="btn-secondary" data-lang-key="cancelButton">إلغاء</button>
+                <button id="crop-image-btn" class="btn-primary" data-lang-key="cropButton">قص وحفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cropper.js JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    
+    <script type="module">
+    // Firebase SDK imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Firebase Configuration from user
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+        apiKey: "AIzaSyCh7_65l9igvdNOk9oCW6hATqReb9XcfvI",
+        authDomain: "fish-86dce.firebaseapp.com",
+        projectId: "fish-86dce",
+        storageBucket: "fish-86dce.firebasestorage.app",
+        messagingSenderId: "216729516467",
+        appId: "1:216729516467:web:27f3ed63784c87202c73c6",
+        measurementId: "G-3PCBZQPTNJ"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const dbFirestore = getFirestore(app); // Renamed to avoid conflict with local 'db' object
+    const auth = getAuth(app);
+
+    // Global variables for Firebase
+    let userId = null;
+    let isAuthReady = false;
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+    // Translations object
+    const translations = {
+        ar: {
+            appTitle: 'أوشن ميدل إيست',
+            appName: 'أوشن ميدل إيست',
+            langButtonText: 'EN',
+            deliveryOption: 'توصيل',
+            searchPlaceholder: 'ابحث عن ما تريد...',
+            categoriesTitle: 'الأقسام',
+            productsTitle: 'المنتجات',
+            navMore: 'المزيد',
+            navCart: 'السلة',
+            navProfile: 'البروفايل',
+            navMenu: 'القائمة',
+            reviewOrder: 'قم بمراجعة الطلب',
+            cartEmptyTitle: 'سلة التسوق الخاصة بك فارغة',
+            cartEmptyMessage: 'ابدأ التسوق واختر المنتج المناسب',
+            startShoppingButton: 'ابدأ التسوق',
+            deliveryInfo: 'معلومات التوصيل',
+            orderItems: 'عناصر الطلب',
+            subtotal: 'المجموع الفرعي',
+            total: 'المجموع',
+            proceedToCheckout: 'الذهاب لإتمام الطلب',
+            addToCartButton: 'أضف إلى السلة',
+            addCategoryTitle: 'إضافة قسم جديد',
+            categoryNameAr: 'اسم القسم (عربي):',
+            categoryNameEn: 'اسم القسم (إنجليزي):',
+            categoryNamePlaceholderAr: 'ادخل اسم القسم بالعربي',
+            categoryNamePlaceholderEn: 'Enter category name in English',
+            cancelButton: 'إلغاء',
+            saveCategoryButton: 'حفظ القسم',
+            editCategoryTitle: 'تعديل القسم',
+            saveChangesButton: 'حفظ التعديلات',
+            addProductTitle: 'إضافة منتج جديد',
+            productNameAr: 'اسم المنتج (عربي):',
+            productNameEn: 'اسم المنتج (إنجليزي):',
+            productNamePlaceholderAr: 'ادخل اسم المنتج بالعربي',
+            productNamePlaceholderEn: 'Enter product name in English',
+            productDescAr: 'الوصف (عربي):',
+            productDescEn: 'الوصف (إنجليزي):',
+            productDescPlaceholderAr: 'ادخل وصف المنتج بالعربي',
+            productDescPlaceholderEn: 'Enter product description in English',
+            productPrice: 'السعر (ج.م):',
+            productPricePlaceholder: 'ادخل سعر المنتج',
+            productImgUrl: 'رابط الصورة (اختياري):',
+            productImgUrlPlaceholder: 'ادخل رابط صورة المنتج',
+            orText: 'أو',
+            productImgFile: 'اختر صورة من جهازك (اختياري):',
+            productCategory: 'القسم:',
+            saveProductButton: 'حفظ المنتج',
+            editProductTitle: 'تعديل المنتج',
+            confirmationTitle: 'تأكيد',
+            confirmationMessage: 'هل أنت متأكد من رغبتك في حذف هذا العنصر؟',
+            confirmButton: 'تأكيد',
+            loginTitle: 'تسجيل الدخول',
+            emailUsername: 'البريد الإلكتروني / اسم المستخدم:',
+            emailUsernamePlaceholder: 'أدخل بريدك الإلكتروني أو اسم المستخدم',
+            password: 'كلمة السر:',
+            passwordPlaceholder: '********',
+            loginButton: 'تسجيل الدخول',
+            createAccountLink: 'إنشاء حساب جديد',
+            loggedInAsAdminTitle: 'تم تسجيل الدخول كمسؤول',
+            adminPrivilegesMessage: 'لديك الآن صلاحيات الإدارة الكاملة.',
+            logoutButton: 'تسجيل الخروج',
+            loginSuccessTitle: 'تم تسجيل الدخول بنجاح',
+            loginSuccessMessage: (email) => `أهلاً بك، ${email}! لديك الآن صلاحيات الإدارة.`,
+            loginErrorTitle: 'خطأ في تسجيل الدخول',
+            loginErrorMessage: 'البريد الإلكتروني أو كلمة السر غير صحيحة.',
+            logoutConfirmTitle: 'تسجيل الخروج',
+            logoutConfirmMessage: 'هل أنت متأكد أنك تريد تسجيل الخروج؟',
+            logoutSuccessTitle: 'تم تسجيل الخروج',
+            logoutSuccessMessage: 'لقد تم تسجيل خروجك بنجاح.',
+            createAccountTitle: 'إنشاء حساب جديد',
+            createAccountMessage: 'سيتم تحويلك لصفحة إنشاء حساب جديد. (هذه وظيفة وهمية)',
+            okButton: 'حسناً',
+            noProductsMessage: 'لا توجد منتجات في هذا القسم حالياً',
+            categoryExistsError: 'اسم القسم هذا موجود بالفعل. الرجاء اختيار اسم آخر.',
+            enterCategoryNameError: 'الرجاء إدخال اسم القسم.',
+            fillAllFieldsError: 'الرجاء ملء جميع حقول المنتج بشكل صحيح.',
+            deleteProductTitle: 'حذف منتج',
+            deleteProductMessage: (productName) => `هل أنت متأكد من رغبتك في حذف المنتج: ${productName}؟`,
+            deleteCategoryTitle: 'حذف قسم',
+            deleteCategoryMessage: (categoryName) => `هل أنت متأكد من رغبتك في حذف القسم: ${categoryName}؟ سيتم حذف جميع المنتجات التابعة لهذا القسم.`,
+            poweredBy: 'بدعم من م/ حسن السيد علي ',
+            categoryAddedSuccess: 'تم إضافة القسم بنجاح!',
+            categoryEditedSuccess: 'تم تعديل القسم بنجاح!',
+            categoryDeletedSuccess: 'تم حذف القسم بنجاح!',
+            productAddedSuccess: 'تم إضافة المنتج بنجاح!',
+            productEditedSuccess: 'تم تعديل المنتج بنجاح!',
+            productDeletedSuccess: 'تم حذف المنتج بنجاح!',
+            cropImageTitle: 'قص الصورة',
+            cropButton: 'قص وحفظ',
+            aboutUsTitle: 'عن أوشن ميدل إيست',
+            aboutUsParagraph1: 'في "أوشن ميدل إيست"، نؤمن بأن جودة المأكولات البحرية تبدأ من مصدرها. لذلك، نلتزم بتقديم أجود أنواع الأسماك الطازجة والمأكولات البحرية الفاخرة، التي يتم اصطيادها بعناية فائقة من أعماق البحار النقية، لتصل إليك بأقصى درجات النضارة والطعم الأصيل.',
+            aboutUsParagraph2: 'نحن نفخر بكوننا جسراً يربط بين كنوز المحيط ومائدتك، مع التزامنا الصارم بمعايير الجودة العالمية والاستدامة البيئية. فريقنا المتخصص يعمل بلا كلل لضمان أن كل قطعة سمك تصل إليك هي قصة نجاح في النضارة والنكهة.',
+            aboutUsParagraph3: '"أوشن ميدل إيست" ليست مجرد شركة أسماك، بل هي شغف بالمذاق الرفيع، والتزام بالصحة، ووعد بتقديم تجربة طعام بحري لا تُنسى. انضم إلينا في رحلة استكشاف عالم النكهات البحرية الغنية، ودعنا نثري مائدتك بأشهى ما في المحيط.',
+            aboutUsParagraph4: '"أوشن ميدل إيست: حيث يلتقي المحيط بمائدتك بأبهى صورة."',
+            closeButton: 'إغلاق',
+            uploadingImage: 'جاري رفع الصورة...', // New translation
+            savingChanges: 'جاري حفظ التعديلات...', // New translation
+            imageUploadSuccess: 'تم رفع الصورة بنجاح!', // New translation
+            imageUploadError: 'حدث خطأ أثناء رفع الصورة.', // New translation
+        },
+        en: {
+            appTitle: 'Ocean Middle East',
+            appName: 'Ocean Middle East',
+            langButtonText: 'عربي',
+            deliveryOption: 'Delivery',
+            searchPlaceholder: 'Search for what you want...',
+            categoriesTitle: 'Categories',
+            productsTitle: 'Products',
+            navMore: 'More',
+            navCart: 'Cart',
+            navProfile: 'Profile',
+            navMenu: 'Menu',
+            reviewOrder: 'Review Order',
+            cartEmptyTitle: 'Your shopping cart is empty',
+            cartEmptyMessage: 'Start shopping and choose the right product',
+            startShoppingButton: 'Start Shopping',
+            deliveryInfo: 'Delivery Information',
+            orderItems: 'Order Items',
+            subtotal: 'Subtotal',
+            total: 'Total',
+            proceedToCheckout: 'Proceed to Checkout',
+            addToCartButton: 'Add to Cart',
+            addCategoryTitle: 'Add New Category',
+            categoryNameAr: 'Category Name (Arabic):',
+            categoryNameEn: 'Category Name (English):',
+            categoryNamePlaceholderAr: 'Enter category name in Arabic',
+            categoryNamePlaceholderEn: 'Enter category name in English',
+            cancelButton: 'Cancel',
+            saveCategoryButton: 'Save Category',
+            editCategoryTitle: 'Edit Category',
+            saveChangesButton: 'Save Changes',
+            addProductTitle: 'Add New Product',
+            productNameAr: 'Product Name (Arabic):',
+            productNameEn: 'Product Name (English):',
+            productNamePlaceholderAr: 'Enter product name in Arabic',
+            productNamePlaceholderEn: 'Enter product name in English',
+            productDescAr: 'Description (Arabic):',
+            productDescEn: 'Description (English):',
+            productDescPlaceholderAr: 'Enter product description in Arabic',
+            productDescPlaceholderEn: 'Enter product description in English',
+            productPrice: 'Price (K.D.):',
+            productPricePlaceholder: 'Enter product price',
+            productImgUrl: 'Image URL (Optional):',
+            productImgUrlPlaceholder: 'Enter product image URL',
+            orText: 'Or',
+            productImgFile: 'Choose image from device (Optional):',
+            productCategory: 'Category:',
+            saveProductButton: 'Save Product',
+            editProductTitle: 'Edit Product',
+            confirmationTitle: 'Confirmation',
+            confirmationMessage: 'Are you sure you want to delete this item?',
+            confirmButton: 'Confirm',
+            loginTitle: 'Login',
+            emailUsername: 'Email / Username:',
+            emailUsernamePlaceholder: 'Enter your email or username',
+            password: 'Password:',
+            passwordPlaceholder: '********',
+            loginButton: 'Login',
+            createAccountLink: 'Create New Account',
+            loggedInAsAdminTitle: 'Logged in as Admin',
+            adminPrivilegesMessage: 'You now have full administrative privileges.',
+            logoutButton: 'Logout',
+            loginSuccessTitle: 'Login Successful',
+            loginSuccessMessage: (email) => `Welcome, ${email}! You now have admin privileges.`,
+            loginErrorTitle: 'Login Error',
+            loginErrorMessage: 'Incorrect email or password.',
+            logoutConfirmTitle: 'Logout',
+            logoutConfirmMessage: 'Are you sure you want to log out?',
+            logoutSuccessTitle: 'Logged Out',
+            logoutSuccessMessage: 'You have been successfully logged out.',
+            createAccountTitle: 'Create New Account',
+            createAccountMessage: 'You will be redirected to a new account creation page. (This is a dummy function)',
+            okButton: 'Ok',
+            noProductsMessage: 'No products in this category yet',
+            categoryExistsError: 'This category name already exists. Please choose another name.',
+            enterCategoryNameError: 'Please enter a category name.',
+            fillAllFieldsError: 'Please fill in all product fields correctly.',
+            deleteProductTitle: 'Delete Product',
+            deleteProductMessage: (productName) => `Are you sure you want to delete the product: ${productName}؟`,
+            deleteCategoryTitle: 'Delete Category',
+            deleteCategoryMessage: (categoryName) => `Are you sure you want to delete the category: ${categoryName}؟ All products belonging to this category will also be deleted.`,
+            poweredBy: 'Powered by Eng. Hassan Elsayed Ali',
+            categoryAddedSuccess: 'Category added successfully!',
+            categoryEditedSuccess: 'Category updated successfully!',
+            categoryDeletedSuccess: 'Category deleted successfully!',
+            productAddedSuccess: 'Product added successfully!',
+            productEditedSuccess: 'Product updated successfully!',
+            productDeletedSuccess: 'Product deleted successfully!',
+            cropImageTitle: 'Crop Image',
+            cropButton: 'Crop & Save',
+            aboutUsTitle: 'About Ocean Middle East',
+            aboutUsParagraph1: 'At "Ocean Middle East", we believe that the quality of seafood starts from its source. Therefore, we are committed to providing the finest fresh fish and luxurious seafood, carefully harvested from the pure depths of the seas, to reach you with the utmost freshness and authentic taste.',
+            aboutUsParagraph2: 'We are proud to be a bridge connecting the ocean\'s treasures to your table, with our strict adherence to international quality standards and environmental sustainability. Our specialized team works tirelessly to ensure that every piece of fish that reaches you is a success story in freshness and flavor.',
+            aboutUsParagraph3: '"Ocean Middle East" is not just a fish company; it is a passion for exquisite taste, a commitment to health, and a promise to deliver an unforgettable seafood dining experience. Join us on a journey to explore the rich world of marine flavors, and let us enrich your table with the best the ocean has to offer.',
+            aboutUsParagraph4: '"Ocean Middle East: Where the ocean meets your table in its finest form."',
+            closeButton: 'Close',
+            uploadingImage: 'Uploading Image...', // New translation
+            savingChanges: 'Saving Changes...', // New translation
+            imageUploadSuccess: 'Image uploaded successfully!', // New translation
+            imageUploadError: 'Error uploading image.', // New translation
+        }
+    };
+
+    let cart = [];
+    let currentCategory = 'fresh';
+    let isAdmin = false; // New: Admin state
+    let currentLanguage = localStorage.getItem('appLanguage') || 'ar'; // Default to Arabic, load from localStorage
+    let isDarkMode = localStorage.getItem('darkMode') === 'true'; // Load dark mode preference
+
+    // Get elements from the DOM
+    const mainPageEl = document.getElementById('main-page');
+    const cartPageEl = document.getElementById('cart-page');
+    const productListEl = document.getElementById('product-list');
+    const categoryContainerEl = document.getElementById('category-container');
+    const cartCounterMainEl = document.getElementById('cart-counter-main');
+    const cartContentAreaEl = document.getElementById('cart-content-area');
+    const cartFooterAreaEl = document.getElementById('cart-footer-area');
+    const moreMenuContainer = document.getElementById('more-menu-container');
+    const navButtons = document.querySelectorAll('.nav-btn');
+
+    // Language and Theme Toggle Buttons
+    const languageToggleBtn = document.getElementById('language-toggle-btn');
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const glassPane = document.getElementById('glass-pane'); // Glass pane element
+
+    // Main Image Elements and their edit buttons/inputs
+    const mainHeaderImageEl = document.getElementById('main-header-image');
+    const editHeaderImageBtn = document.getElementById('edit-header-image-btn');
+    const headerImageInput = document.getElementById('header-image-input');
+
+    const mainLogoImageEl = document.getElementById('main-logo-image');
+    const mainLogoWrapper = document.getElementById('main-logo-wrapper'); // New: Wrapper for main logo
+    const logoImageInput = document.getElementById('logo-image-input');
+
+    // New: Header Left Logo Elements
+    const headerLeftLogoImageEl = document.getElementById('header-left-logo-image');
+    const headerLeftLogoWrapper = document.getElementById('header-left-logo-wrapper'); // New: Wrapper for header left logo
+    const headerLeftLogoInput = document.getElementById('header-left-logo-input');
+    // For cart page header logo
+    const cartHeaderLeftLogoImageEl = document.getElementById('cart-header-left-logo-image');
+
+    // Add/Edit buttons (initially hidden in HTML)
+    const addCategoryBtn = document.getElementById('add-category-btn');
+    const addProductBtn = document.getElementById('add-product-btn');
+
+
+    // Modals for adding categories and products
+    const addCategoryModalContainer = document.getElementById('add-category-modal-container');
+    const closeAddCategoryModalBtn = document.getElementById('close-add-category-modal');
+    const saveCategoryBtn = document.getElementById('save-category-btn');
+    const newCategoryNameArInput = document.getElementById('new-category-name-ar'); // Arabic input
+    const newCategoryNameEnInput = document.getElementById('new-category-name-en'); // English input
+
+    const editCategoryModalContainer = document.getElementById('edit-category-modal-container');
+    const closeEditCategoryModalBtn = document.getElementById('close-edit-category-modal');
+    const saveEditedCategoryBtn = document.getElementById('save-edited-category-btn');
+    const editCategoryNameArInput = document.getElementById('edit-category-name-ar'); // Arabic input
+    const editCategoryNameEnInput = document.getElementById('edit-category-name-en'); // English input
+    let categoryToEditId = null; // Variable to store the ID of the category being edited
+
+    const addProductModalContainer = document.getElementById('add-product-modal-container');
+    const closeAddProductModalBtn = document.getElementById('close-add-product-modal');
+    const saveProductBtn = document.getElementById('save-product-btn');
+    const newProductNameArInput = document.getElementById('new-product-name-ar'); // Arabic input
+    const newProductNameEnInput = document.getElementById('new-product-name-en'); // English input
+    const newProductDescArInput = document.getElementById('new-product-desc-ar'); // Arabic input
+    const newProductDescEnInput = document.getElementById('new-product-desc-en'); // English input
+    const newProductPriceInput = document.getElementById('new-product-price');
+    const newProductImgInput = document.getElementById('new-product-img'); // URL input
+    const newProductImgFileInput = document.getElementById('new-product-img-file'); // File input
+    const newProductImgPreview = document.getElementById('new-product-img-preview'); // Image preview
+    const newProductCategorySelect = document.getElementById('new-product-category');
+
+    const editProductModalContainer = document.getElementById('edit-product-modal-container');
+    const closeEditProductModalBtn = document.getElementById('close-edit-product-modal');
+    const saveEditedProductBtn = document.getElementById('save-edited-product-btn');
+    const editProductNameArInput = document.getElementById('edit-product-name-ar'); // Arabic input
+    const editProductNameEnInput = document.getElementById('edit-product-name-en'); // English input
+    const editProductDescArInput = document.getElementById('edit-product-desc-ar'); // Arabic input
+    const editProductDescEnInput = document.getElementById('edit-product-desc-en'); // English input
+    const editProductPriceInput = document.getElementById('edit-product-price');
+    const editProductImgInput = document.getElementById('edit-product-img'); // URL input
+    const editProductImgFileInput = document.getElementById('edit-product-img-file'); // File input
+    const editProductImgPreview = document.getElementById('edit-product-img-preview'); // Image preview
+    const editProductCategorySelect = document.getElementById('edit-product-category');
+    let productToEditId = null; // Variable to store the ID of the product being edited
+
+    // Confirmation Modal elements
+    const confirmationModalContainer = document.getElementById('confirmation-modal-container');
+    const confirmationModalTitle = document.getElementById('confirmation-modal-title');
+    const confirmationModalMessage = document.getElementById('confirmation-modal-message');
+    const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+    const confirmOkBtn = document.getElementById('confirm-ok-btn');
+    let confirmationCallback = null; // To store the callback function for confirmation
+
+    // Login Modal elements
+    const loginModalContainer = document.getElementById('login-modal-container');
+    const closeLoginModalBtn = document.getElementById('close-login-modal');
+    const loginEmailInput = document.getElementById('login-email');
+    const loginPasswordInput = document.getElementById('login-password');
+    const loginBtn = document.getElementById('login-btn');
+    const createAccountLink = document.getElementById('create-account-link');
+
+    // Toast Message elements
+    const toastContainer = document.getElementById('toast-container');
+    const toastIcon = document.getElementById('toast-icon');
+    const toastText = document.getElementById('toast-text');
+    let toastTimeout;
+
+    // Admin Profile Modal elements
+    const adminProfileModalContainer = document.getElementById('admin-profile-modal-container');
+    const closeAdminProfileModalBtn = document.getElementById('close-admin-profile-modal');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    // Cropper Modal elements
+    const imageCropperModalContainer = document.getElementById('image-cropper-modal-container');
+    const imageToCrop = document.getElementById('image-to-crop');
+    const cancelCropBtn = document.getElementById('cancel-crop-btn');
+    const cropImageBtn = document.getElementById('crop-image-btn');
+    let cropper; // Cropper.js instance
+    let currentCropCallback = null; // Callback to execute after cropping
+
+    // New About Us Modal elements
+    const aboutUsModalContainer = document.getElementById('about-us-modal-container');
+    const openAboutUsModalBtn = document.getElementById('open-about-us-modal-btn');
+    const closeAboutUsModalBtn = document.getElementById('close-about-us-modal');
+
+
+    // Local data storage (will be replaced by Firebase data)
+    let categories = [];
+    let products = [];
+
+    /**
+     * @function showToast
+     * @description Displays a toast notification with a given message, type, and duration.
+     * @param {string} message - The message to display.
+     * @param {string} type - The type of toast ('success', 'error', 'loading').
+     * @param {number} duration - The duration in milliseconds for which the toast will be visible.
+     */
+    function showToast(message, type = 'success', duration = 3000) {
+        clearTimeout(toastTimeout); // Clear any existing timeout
+        toastContainer.classList.remove('show', 'success', 'error', 'loading'); // Reset classes
+        
+        toastText.textContent = message;
+        
+        // Set icon and background color based on type
+        if (type === 'success') {
+            toastContainer.style.backgroundColor = 'var(--success-color)';
+            toastIcon.innerHTML = `<i class="fas fa-check-circle"></i>`;
+        } else if (type === 'error') {
+            toastContainer.style.backgroundColor = 'var(--danger-color)';
+            toastIcon.innerHTML = `<i class="fas fa-times-circle"></i>`;
+        } else if (type === 'loading') { // New loading state
+            toastContainer.style.backgroundColor = 'var(--primary-color)';
+            toastIcon.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+        }
+
+        toastContainer.classList.add('show', type);
+
+        // Only hide toast if it's not a 'loading' type
+        if (type !== 'loading') {
+            toastTimeout = setTimeout(() => {
+                toastContainer.classList.remove('show');
+            }, duration);
+        }
+    }
+
+    // Function to apply translations
+    function applyTranslations() {
+        document.querySelectorAll('[data-lang-key]').forEach(element => {
+            const key = element.getAttribute('data-lang-key');
+            let translation = translations[currentLanguage][key];
+
+            // Handle functions in translations (e.g., loginSuccessMessage)
+            if (typeof translation === 'function') {
+                // This case is typically handled by showToast or confirmAction
+                // where the function is called with specific arguments.
+                // For general elements with data-lang-key, we skip or clear content.
+                element.textContent = ''; // Clear if it's a dynamic message
+                return;
+            }
+
+            if (translation) {
+                if (element.tagName === 'INPUT' && element.hasAttribute('placeholder')) {
+                    element.setAttribute('placeholder', translation);
+                } else {
+                    element.textContent = translation;
+                }
+            }
+        });
+
+        // Update specific elements that need dynamic translation or special handling
+        document.title = translations[currentLanguage].appTitle;
+        document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.lang = currentLanguage;
+
+        // Update language button text
+        languageToggleBtn.textContent = translations[currentLanguage].langButtonText;
+
+        // Re-render dynamic content
+        renderCategories();
+        renderProducts();
+        renderCartPage(); // Re-render cart to apply language to its dynamic text
+        populateProductCategoryDropdowns(); // Re-populate dropdowns with translated category names
+    }
+
+    // Function to set the language with glass pane effect
+    function setLanguage(lang) {
+        glassPane.classList.add('show');
+        setTimeout(() => {
+            currentLanguage = lang;
+            localStorage.setItem('appLanguage', lang); // Save language preference
+            applyTranslations();
+            // After the content is updated, wait a bit for the user to perceive the change,
+            // then hide the glass pane. The total duration should be slightly longer than
+            // the CSS transition to ensure the animation completes.
+            setTimeout(() => {
+                glassPane.classList.remove('show');
+            }, 400); // This should match the CSS transition duration
+        }, 400); // This should match the CSS transition duration
+    }
+
+    // Function to toggle dark/light mode with glass pane effect
+    function toggleDarkMode() {
+        glassPane.classList.add('show');
+        setTimeout(() => {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+            localStorage.setItem('darkMode', isDarkMode); // Save theme preference
+            // After the content is updated, wait a bit for the user to perceive the change,
+            // then hide the glass pane.
+            setTimeout(() => {
+                glassPane.classList.remove('show');
+            }, 400); // This should match the CSS transition duration
+        }, 400); // This should match the CSS transition duration
+    }
+
+    // Function to show/hide admin controls
+    function toggleAdminControls(show) {
+        // Toggle header image edit button and image click
+        editHeaderImageBtn.classList.toggle('hidden', !show);
+        mainHeaderImageEl.classList.toggle('cursor-pointer', show);
+        mainHeaderImageEl.classList.toggle('admin-active', show); // Add class for hover effect
+        
+        // Toggle main logo image click
+        mainLogoWrapper.classList.toggle('cursor-pointer', show);
+        mainLogoWrapper.classList.toggle('admin-active', show); // Add class for hover effect
+
+        // Toggle header left logo image click
+        headerLeftLogoWrapper.classList.toggle('cursor-pointer', show);
+        headerLeftLogoWrapper.classList.toggle('admin-active', show); // Add class for hover effect
+
+        // Toggle add category/product buttons
+        addCategoryBtn.classList.toggle('hidden', !show);
+        addProductBtn.classList.toggle('hidden', !show);
+
+        // Re-render categories and products to show/hide their edit/delete buttons
+        renderCategories();
+        renderProducts();
+    }
+
+
+    // Function to render products based on the current category
+    function renderProducts() {
+        productListEl.innerHTML = '';
+        const filteredProducts = products.filter(p => p.category === currentCategory);
+        if (filteredProducts.length === 0) {
+            productListEl.innerHTML = `<div class="text-center text-gray-500 py-10"><p class="text-lg">${translations[currentLanguage].noProductsMessage}</p></div>`;
+            return;
+        }
+        filteredProducts.forEach((product, index) => {
+            // Create a new div for each product card
+            const productCard = document.createElement('div');
+            productCard.className = `space-y-3 p-2 product-card-animation bg-card-bg rounded-lg shadow-md`;
+            productCard.style.animationDelay = `${index * 80}ms`; // Staggered animation
+
+            productCard.innerHTML = `
+                <img src="${product.img}" alt="${product.name[currentLanguage]}" class="w-full h-48 object-cover rounded-lg">
+                <div class="text-right">
+                    <h3 class="font-bold text-lg text-text-dark">${product.name[currentLanguage]}</h3>
+                    <p class="text-sm text-text-light">${product.desc[currentLanguage]}</p>
+                    <p class="font-extrabold text-xl text-text-dark mt-2">ج.م ${product.price.toFixed(3)}</p>
+                </div>
+                <div class="mt-2 flex justify-start space-x-2 space-x-reverse">
+                    <button onclick="window.addToCart('${product.id}')" class="btn-outline-primary flex items-center space-x-2 space-x-reverse px-4 py-2">
+                        <i class="fas fa-cart-plus"></i>
+                        <span class="text-sm font-semibold" data-lang-key="addToCartButton">${translations[currentLanguage].addToCartButton}</span>
+                    </button>
+                    <!-- Admin Edit/Delete Buttons for Product -->
+                    ${isAdmin ? `
+                    <button onclick="window.openEditProductModal('${product.id}')" class="action-button edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="window.confirmAction('${translations[currentLanguage].deleteProductTitle}', '${translations[currentLanguage].deleteProductMessage(product.name[currentLanguage])}', () => window.deleteProduct('${product.id}'))" class="action-button delete">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    ` : ''}
+                </div>`;
+            productListEl.appendChild(productCard);
+        });
+    }
+
+    // Function to render categories and update active state
+    function renderCategories() {
+        categoryContainerEl.innerHTML = '';
+        categories.forEach((category, index) => {
+            const buttonClass = `category-btn px-5 py-2 text-sm font-semibold rounded-full flex-shrink-0 transition-colors ${currentCategory === category.id ? 'active' : 'bg-input-bg text-text-medium'}`;
+            
+            // Create a new div for each category button group
+            const categoryGroup = document.createElement('div');
+            categoryGroup.className = `flex items-center space-x-2 space-x-reverse`;
+            categoryGroup.style.animationDelay = `${index * 50}ms`; // Staggered animation
+
+            categoryGroup.innerHTML = `
+                <button onclick="window.changeCategory('${category.id}')" class="${buttonClass}">${category.name[currentLanguage]}</button>
+                <!-- Admin Edit/Delete Buttons for Category -->
+                ${isAdmin ? `
+                <button onclick="window.openEditCategoryModal('${category.id}')" class="action-button edit">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="window.confirmAction('${translations[currentLanguage].deleteCategoryTitle}', '${translations[currentLanguage].deleteCategoryMessage(category.name[currentLanguage])}', () => window.deleteCategory('${category.id}'))" class="action-button delete">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+                ` : ''}
+            `;
+            categoryContainerEl.appendChild(categoryGroup);
+        });
+    }
+
+    // Function to render the cart page
+    function renderCartPage() {
+        if (cart.length === 0) {
+            cartContentAreaEl.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-full text-center p-8">
+                    <!-- Corrected SVG path for empty cart icon -->
+                    <i class="fas fa-shopping-basket w-24 h-24 text-gray-400"></i>
+                    <h2 class="text-2xl font-bold mt-6 text-text-dark">${translations[currentLanguage].cartEmptyTitle}</h2>
+                    <p class="text-text-light mt-2">${translations[currentLanguage].cartEmptyMessage}</p>
+                    <button id="start-shopping-btn" class="btn-primary w-full mt-8">${translations[currentLanguage].startShoppingButton}</button>
+                </div>`;
+            cartFooterAreaEl.classList.add('hidden');
+            document.getElementById('start-shopping-btn').addEventListener('click', window.showMainPage);
+        } else {
+            let subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            let total = subtotal; // No delivery fee
+
+            let itemsHtml = cart.map(item => `
+                <div class="flex items-center py-4 border-b border-border-color">
+                    <div class="flex-grow">
+                        <div class="flex justify-between">
+                            <p class="font-bold text-text-dark">${item.quantity}x ${item.name[currentLanguage]}</p>
+                            <p class="font-bold text-text-dark">ج.م ${item.price.toFixed(3)}</p>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <div class="flex items-center space-x-2">
+                                <button onclick="window.removeFromCart('${item.id}')"><i class="fas fa-trash-alt w-5 h-5 text-text-light"></i></button>
+                            </div>
+                            <div class="flex items-center space-x-3 bg-input-bg rounded-md p-1">
+                                <button onclick="window.updateQuantity('${item.id}', -1)" class="w-7 h-7 text-primary-color font-bold text-lg">-</button>
+                                <span class="w-5 text-center font-semibold text-text-dark">${item.quantity}</span>
+                                <button onclick="window.updateQuantity('${item.id}', 1)" class="w-7 h-7 text-primary-color font-bold text-lg">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            cartContentAreaEl.innerHTML = `
+                <div class="p-4 space-y-6">
+                    <div class="flex justify-between items-center text-text-medium">
+                        <h3 class="font-bold">${translations[currentLanguage].deliveryInfo}</h3>
+                        <p class="font-semibold text-primary-color">12 ساعة</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-text-medium mb-2">${translations[currentLanguage].orderItems}</h3>
+                        <div class="space-y-2">${itemsHtml}</div>
+                    </div>
+                    <div class="space-y-3 pt-4 border-t border-border-color pt-6">
+                        <div class="flex justify-between text-text-dark"><p>${translations[currentLanguage].subtotal}</p><p class="font-semibold">ج.م ${subtotal.toFixed(3)}</p></div>
+                        <div class="flex justify-between font-bold text-lg text-primary-color"><p>${translations[currentLanguage].total}</p><p>ج.م ${total.toFixed(3)}</p></div>
+                    </div>
+                </div>`;
+                
+            cartFooterAreaEl.innerHTML = `<button id="proceed-to-checkout-btn" class="btn-primary w-full">${translations[currentLanguage].proceedToCheckout}</button>`;
+            cartFooterAreaEl.classList.remove('hidden');
+
+            // Add event listener for the new checkout button
+            document.getElementById('proceed-to-checkout-btn').addEventListener('click', sendOrderToWhatsApp);
+        }
+    }
+    
+    // Function to change the current category
+    function changeCategory(categoryId) {
+        currentCategory = categoryId;
+        renderCategories();
+        renderProducts();
+    }
+
+    // Function to add a product to the cart (no changes)
+    function addToCart(productId) {
+        const product = products.find(p => p.id === productId);
+        const cartItem = cart.find(item => item.id === productId);
+        if (cartItem) {
+            cartItem.quantity++;
+        } else {
+            cart.push({ ...product, quantity: 1 });
+        }
+        updateCartCounter();
+    }
+
+    // Function to update item quantity in cart (no changes)
+    function updateQuantity(productId, change) {
+        const cartItem = cart.find(item => item.id === productId);
+        if (cartItem) {
+            cartItem.quantity += change;
+            if (cartItem.quantity <= 0) {
+                cart = cart.filter(item => item.id !== productId);
+            }
+        }
+        renderCartPage();
+        updateCartCounter();
+    }
+
+    // Function to remove an item from the cart (no changes)
+    function removeFromCart(productId) {
+        cart = cart.filter(item => item.id !== productId);
+        renderCartPage();
+        updateCartCounter();
+    }
+
+    // Function to update the cart counter in the main navigation (no changes)
+    function updateCartCounter() {
+        cartCounterMainEl.textContent = cart.reduce((acc, item) => acc + item.quantity, 0);
+    }
+    
+    // Function to update active navigation button state (no changes)
+    function updateNavActiveState(activePage) {
+        navButtons.forEach(btn => {
+            btn.classList.remove('active');
+        });
+        if (activePage === 'main') {
+            document.getElementById('nav-btn-menu').classList.add('active');
+        } else if (activePage === 'cart') {
+            document.getElementById('nav-btn-cart').classList.add('active');
+        } else if (activePage === 'profile') { // Added profile active state
+            document.getElementById('nav-btn-profile').classList.add('active');
+        }
+    }
+
+    // Function to show the main page (no changes)
+    function showMainPage() { 
+        mainPageEl.style.display = 'block'; 
+        cartPageEl.style.display = 'none'; 
+        updateNavActiveState('main');
+    }
+
+    // Function to show the cart page (no changes)
+    function showCartPage() { 
+        renderCartPage(); 
+        mainPageEl.style.display = 'none'; 
+        cartPageEl.style.display = 'block'; 
+        updateNavActiveState('cart');
+    }
+
+    // Generic function to set up modal behavior (open/close)
+    function setupModal(openBtnId, closeBtnId, containerId) {
+        const openBtn = document.getElementById(openBtnId);
+        const closeBtn = document.getElementById(closeBtnId);
+        const container = document.getElementById(containerId);
+        
+        function open() { container.classList.remove('hidden'); }
+        function close() { container.classList.add('hidden'); }
+        
+        // Check if openBtn exists before adding event listener
+        if (openBtn) {
+            openBtn.addEventListener('click', open);
+        }
+        closeBtn.addEventListener('click', close);
+        container.addEventListener('click', (e) => {
+            if (e.target.id === containerId) close();
+        });
+        // Return open and close functions for external control if needed
+        return { open, close };
+    }
+
+    // Function to display a custom confirmation modal
+    function confirmAction(title, message, callback) {
+        confirmationModalTitle.textContent = title;
+        confirmationModalMessage.textContent = message;
+        confirmationCallback = callback;
+        confirmationModalContainer.classList.remove('hidden');
+        // Ensure the confirmation modal is on top
+        confirmationModalContainer.style.zIndex = '60'; 
+    }
+
+    // Event listeners for confirmation modal buttons
+    confirmOkBtn.addEventListener('click', () => {
+        if (confirmationCallback) {
+            confirmationCallback();
+        }
+        confirmationModalContainer.classList.add('hidden');
+        confirmationModalContainer.style.zIndex = '50'; // Reset z-index
+        confirmationCallback = null; // Clear the callback
+    });
+
+    confirmCancelBtn.addEventListener('click', () => {
+        confirmationModalContainer.classList.add('hidden');
+        confirmationModalContainer.style.zIndex = '50'; // Reset z-index
+        confirmationCallback = null; // Clear the callback
+    });
+
+    // Function to populate product category dropdowns
+    function populateProductCategoryDropdowns() {
+        // For Add Product Modal
+        newProductCategorySelect.innerHTML = '';
+        // For Edit Product Modal
+        editProductCategorySelect.innerHTML = ''; 
+
+        categories.forEach(category => {
+            const newOption = document.createElement('option');
+            newOption.value = category.id;
+            newOption.textContent = category.name[currentLanguage]; // Use current language
+            newProductCategorySelect.appendChild(newOption);
+
+            const editOption = document.createElement('option');
+            editOption.value = category.id;
+            editOption.textContent = category.name[currentLanguage]; // Use current language
+            editProductCategorySelect.appendChild(editOption);
+        });
+    }
+
+    // Function to read image file and open cropper modal
+    function readImageFileAndCrop(fileInput, callback) {
+        if (fileInput.files && fileInput.files[0]) {
+            showToast(translations[currentLanguage].uploadingImage, 'loading', 0); // Show loading toast
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imageCropperModalContainer.classList.remove('hidden');
+                imageToCrop.src = e.target.result;
+
+                // Destroy existing cropper instance if any
+                if (cropper) {
+                    cropper.destroy();
+                }
+                // Initialize Cropper.js
+                cropper = new Cropper(imageToCrop, {
+                    aspectRatio: NaN, // Allow free aspect ratio by default, or set specific ratios
+                    viewMode: 1, // Restrict the crop box to not exceed the canvas
+                    autoCropArea: 0.8, // 80% of the image
+                    responsive: true,
+                    background: false // Hide the grid background
+                });
+                currentCropCallback = callback; // Store the callback
+            };
+            reader.onerror = () => {
+                showToast(translations[currentLanguage].imageUploadError, 'error');
+                if (callback) callback(null);
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        } else {
+            if (callback) callback(null); // Indicate no file selected
+        }
+    }
+
+    // Function to compress image before saving to Firebase
+    function compressImage(base64Image, maxWidth = 800, maxHeight = 600, quality = 0.7) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.src = base64Image;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // Calculate new dimensions to fit within maxWidth/maxHeight
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                    } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Convert canvas to data URL with specified quality
+                // Using 'image/jpeg' is generally better for compression than 'image/png'
+                const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+                resolve(compressedBase64);
+            };
+            img.onerror = () => {
+                console.error("Error loading image for compression.");
+                resolve(base64Image); // Resolve with original if compression fails
+            };
+        });
+    }
+
+    // Event listener for "Crop & Save" button in cropper modal
+    cropImageBtn.addEventListener('click', async () => { // Added async
+        if (cropper && currentCropCallback) {
+            try {
+                showToast(translations[currentLanguage].savingChanges, 'loading', 0); // Show saving changes toast
+                const croppedCanvas = cropper.getCroppedCanvas();
+                if (croppedCanvas) {
+                    const croppedImageBase64 = croppedCanvas.toDataURL('image/png'); // Get cropped image
+                    const compressedImageBase64 = await compressImage(croppedImageBase64); // Compress it
+                    currentCropCallback(compressedImageBase64); // Pass compressed image data
+                    imageCropperModalContainer.classList.add('hidden');
+                    cropper.destroy(); // Destroy cropper instance after use
+                    cropper = null;
+                    currentCropCallback = null;
+                    showToast(translations[currentLanguage].imageUploadSuccess, 'success'); // Success toast
+                }
+            } catch (error) {
+                console.error("Error during image cropping or compression:", error);
+                showToast(translations[currentLanguage].imageUploadError, 'error'); // Error toast
+            }
+        }
+    });
+
+    // Event listener for "Cancel" button in cropper modal
+    cancelCropBtn.addEventListener('click', () => {
+        imageCropperModalContainer.classList.add('hidden');
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        currentCropCallback = null; // Clear the callback
+        showToast("Image cropping cancelled.", 'error'); // Inform user about cancellation
+    });
+
+    // --- CATEGORY FUNCTIONS (Firebase Integrated) ---
+    async function fetchCategories() {
+        if (!isAuthReady) return;
+        try {
+            const categoriesCol = collection(dbFirestore, `artifacts/${appId}/public/data/categories`);
+            onSnapshot(categoriesCol, (snapshot) => {
+                categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Sort categories by Arabic name for consistent display
+                categories.sort((a, b) => a.name.ar.localeCompare(b.name.ar));
+                if (!categories.some(c => c.id === currentCategory) && categories.length > 0) {
+                    currentCategory = categories[0].id;
+                } else if (categories.length === 0) {
+                    currentCategory = '';
+                }
+                renderCategories();
+                populateProductCategoryDropdowns();
+                renderProducts(); // Re-render products after categories are loaded
+            });
+        } catch (error) {
+            console.error("Error fetching categories: ", error);
+            showToast("Error fetching categories.", 'error');
+        }
+    }
+
+    async function addCategory(categoryNameAr, categoryNameEn) {
+        if (!isAuthReady) return;
+        try {
+            showToast(translations[currentLanguage].savingChanges, 'loading', 0); // Show saving changes toast
+            const newCategoryId = categoryNameEn.toLowerCase().replace(/\s/g, '-');
+            const categoryRef = doc(dbFirestore, `artifacts/${appId}/public/data/categories`, newCategoryId);
+            const categorySnap = await getDoc(categoryRef);
+
+            if (categorySnap.exists()) {
+                showToast(translations[currentLanguage].categoryExistsError, 'error');
+                return;
+            }
+
+            await setDoc(categoryRef, {
+                name: { ar: categoryNameAr, en: categoryNameEn }
+            });
+            showToast(translations[currentLanguage].categoryAddedSuccess, 'success');
+        } catch (error) {
+            console.error("Error adding category: ", error);
+            showToast("Error adding category.", 'error');
+        }
+    }
+
+    async function openEditCategoryModal(categoryId) {
+        if (!isAuthReady) return;
+        const categoryRef = doc(dbFirestore, `artifacts/${appId}/public/data/categories`, categoryId);
+        try {
+            const categorySnap = await getDoc(categoryRef);
+            if (categorySnap.exists()) {
+                const category = categorySnap.data();
+                categoryToEditId = categoryId;
+                editCategoryNameArInput.value = category.name.ar;
+                editCategoryNameEnInput.value = category.name.en;
+                editCategoryModalContainer.classList.remove('hidden');
+            } else {
+                showToast("Category not found.", 'error');
+            }
+        } catch (error) {
+            console.error("Error opening edit category modal: ", error);
+            showToast("Error loading category for edit.", 'error');
+        }
+    }
+
+    async function saveEditedCategory() {
+        if (!isAuthReady) return;
+        const newCategoryNameAr = editCategoryNameArInput.value.trim();
+        const newCategoryNameEn = editCategoryNameEnInput.value.trim();
+        if (newCategoryNameAr && newCategoryNameEn && categoryToEditId) {
+            const oldCategoryId = categoryToEditId;
+            const newCategoryId = newCategoryNameEn.toLowerCase().replace(/\s/g, '-');
+
+            try {
+                showToast(translations[currentLanguage].savingChanges, 'loading', 0); // Show saving changes toast
+                // If ID is changing, check for conflict with existing categories
+                if (oldCategoryId !== newCategoryId) {
+                    const existingCategoryRef = doc(dbFirestore, `artifacts/${appId}/public/data/categories`, newCategoryId);
+                    const existingCategorySnap = await getDoc(existingCategoryRef);
+                    if (existingCategorySnap.exists()) {
+                        showToast(translations[currentLanguage].categoryExistsError, 'error');
+                        return;
+                    }
+
+                    // Create new document with new ID
+                    await setDoc(doc(dbFirestore, `artifacts/${appId}/public/data/categories`, newCategoryId), {
+                        name: { ar: newCategoryNameAr, en: newCategoryNameEn }
+                    });
+                    // Delete old document
+                    await deleteDoc(doc(dbFirestore, `artifacts/${appId}/public/data/categories`, oldCategoryId));
+
+                    // Update products that belong to the old category ID
+                    const productsQuery = query(collection(dbFirestore, `artifacts/${appId}/public/data/products`), where('category', '==', oldCategoryId));
+                    const productsSnapshot = await getDocs(productsQuery);
+                    for (const prodDoc of productsSnapshot.docs) {
+                        await updateDoc(doc(dbFirestore, `artifacts/${appId}/public/data/products`, prodDoc.id), {
+                            category: newCategoryId
+                        });
+                    }
+                } else {
+                    // If ID is not changing, just update the existing document
+                    await updateDoc(doc(dbFirestore, `artifacts/${appId}/public/data/categories`, oldCategoryId), {
+                        name: { ar: newCategoryNameAr, en: newCategoryNameEn }
+                    });
+                }
+                
+                editCategoryModalContainer.classList.add('hidden');
+                categoryToEditId = null;
+                editCategoryNameArInput.value = '';
+                editCategoryNameEnInput.value = '';
+                showToast(translations[currentLanguage].categoryEditedSuccess, 'success');
+            } catch (error) {
+                console.error("Error saving edited category: ", error);
+                showToast("Error saving category changes.", 'error');
+            }
+        } else {
+            showToast(translations[currentLanguage].enterCategoryNameError, 'error');
+        }
+    }
+
+    async function deleteCategory(categoryId) {
+        if (!isAuthReady) return;
+        try {
+            showToast(translations[currentLanguage].savingChanges, 'loading', 0); // Show saving changes toast
+            // Delete associated products first
+            const productsQuery = query(collection(dbFirestore, `artifacts/${appId}/public/data/products`), where('category', '==', categoryId));
+            const productsSnapshot = await getDocs(productsQuery);
+            for (const prodDoc of productsSnapshot.docs) {
+                await deleteDoc(doc(dbFirestore, `artifacts/${appId}/public/data/products`, prodDoc.id));
+            }
+
+            // Then delete the category
+            await deleteDoc(doc(dbFirestore, `artifacts/${appId}/public/data/categories`, categoryId));
+            showToast(translations[currentLanguage].categoryDeletedSuccess, 'success');
+        } catch (error) {
+            console.error("Error deleting category: ", error);
+            showToast("Error deleting category.", 'error');
+        }
+    }
+
+    // --- PRODUCT FUNCTIONS (Firebase Integrated) ---
+    async function fetchProducts() {
+        if (!isAuthReady) return;
+        try {
+            const productsCol = collection(dbFirestore, `artifacts/${appId}/public/data/products`);
+            onSnapshot(productsCol, (snapshot) => {
+                products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderProducts();
+            });
+        } catch (error) {
+            console.error("Error fetching products: ", error);
+            showToast("Error fetching products.", 'error');
+        }
+    }
+
+    async function addProduct(productData) {
+        if (!isAuthReady) return;
+        try {
+            showToast(translations[currentLanguage].savingChanges, 'loading', 0); // Show saving changes toast
+            await addDoc(collection(dbFirestore, `artifacts/${appId}/public/data/products`), productData);
+            showToast(translations[currentLanguage].productAddedSuccess, 'success');
+        } catch (error) {
+            console.error("Error adding product: ", error);
+            showToast("Error adding product.", 'error');
+        }
+    }
+
+    async function openEditProductModal(productId) {
+        if (!isAuthReady) return;
+        const productRef = doc(dbFirestore, `artifacts/${appId}/public/data/products`, productId);
+        try {
+            const productSnap = await getDoc(productRef);
+            if (productSnap.exists()) {
+                const product = productSnap.data();
+                productToEditId = productId;
+                editProductNameArInput.value = product.name.ar;
+                editProductNameEnInput.value = product.name.en;
+                editProductDescArInput.value = product.desc.ar;
+                editProductDescEnInput.value = product.desc.en;
+                editProductPriceInput.value = product.price;
+                editProductImgInput.value = ''; // Clear URL input initially
+                editProductImgFileInput.value = ''; // Clear file input
+                editProductImgPreview.classList.add('hidden'); // Hide preview by default
+
+                // Check if product.img is a Base64 string or a URL
+                if (product.img && product.img.startsWith('data:image')) {
+                    editProductImgPreview.src = product.img;
+                    editProductImgPreview.classList.remove('hidden');
+                } else if (product.img) {
+                    editProductImgInput.value = product.img; // Set URL if it's a URL
+                    editProductImgPreview.src = product.img; // Also show preview for URL
+                    editProductImgPreview.classList.remove('hidden');
+                }
+                
+                populateProductCategoryDropdowns(); // Ensure categories are loaded
+                editProductCategorySelect.value = product.category; // Set correct category
+                editProductModalContainer.classList.remove('hidden');
+            } else {
+                showToast("Product not found.", 'error');
+            }
+        } catch (error) {
+            console.error("Error opening edit product modal: ", error);
+            showToast("Error loading product for edit.", 'error');
+        }
+    }
+
+    async function saveEditedProduct() {
+        if (!isAuthReady) return;
+        const productNameAr = editProductNameArInput.value.trim();
+        const productNameEn = editProductNameEnInput.value.trim();
+        const productDescAr = editProductDescArInput.value.trim();
+        const productDescEn = editProductDescEnInput.value.trim();
+        const productPrice = parseFloat(editProductPriceInput.value);
+        const productImgUrl = editProductImgInput.value.trim();
+        const productFile = editProductImgFileInput.files[0];
+        const productCategory = editProductCategorySelect.value;
+
+        if (productNameAr && productNameEn && productDescAr && productDescEn && !isNaN(productPrice) && productPrice > 0 && productCategory && productToEditId) {
+            let finalImgSource = ''; // Will be determined below
+
+            const productRef = doc(dbFirestore, `artifacts/${appId}/public/data/products`, productToEditId);
+            const productSnap = await getDoc(productRef);
+            const existingProductData = productSnap.exists() ? productSnap.data() : null;
+
+            if (productFile) {
+                // If a new file is selected, it will be handled by the cropping logic
+                // The actual `finalImgSource` will come from the crop callback
+                // For now, we'll rely on the existing image or placeholder
+                finalImgSource = editProductImgPreview.src; // This will be the cropped and compressed image
+            } else if (productImgUrl) {
+                // Use URL if provided and no file selected
+                finalImgSource = productImgUrl;
+            } else if (existingProductData && existingProductData.img) {
+                // Keep existing image if no new one selected and existing image exists
+                finalImgSource = existingProductData.img;
+            } else {
+                // If both are empty and no existing image, use a placeholder
+                finalImgSource = 'https://placehold.co/400x300/f0f0f0/333?text=No+Image';
+            }
+
+            try {
+                showToast(translations[currentLanguage].savingChanges, 'loading', 0); // Show saving changes toast
+                await updateDoc(productRef, {
+                    name: { ar: productNameAr, en: productNameEn },
+                    desc: { ar: productDescAr, en: productDescEn },
+                    price: productPrice,
+                    img: finalImgSource, // Use the compressed/final image source
+                    category: productCategory
+                });
+                editProductModalContainer.classList.add('hidden');
+                productToEditId = null;
+                // Clear input fields and preview
+                editProductNameArInput.value = '';
+                editProductNameEnInput.value = '';
+                editProductDescArInput.value = '';
+                editProductDescEnInput.value = '';
+                editProductPriceInput.value = '';
+                editProductImgInput.value = '';
+                editProductImgFileInput.value = '';
+                editProductImgPreview.src = '';
+                editProductImgPreview.classList.add('hidden');
+                showToast(translations[currentLanguage].productEditedSuccess, 'success');
+            } catch (error) {
+                console.error("Error saving edited product: ", error);
+                showToast("Error saving product changes.", 'error');
+            }
+        } else {
+            showToast(translations[currentLanguage].fillAllFieldsError, 'error');
+        }
+    }
+
+    async function deleteProduct(productId) {
+        if (!isAuthReady) return;
+        try {
+            showToast(translations[currentLanguage].savingChanges, 'loading', 0); // Show saving changes toast
+            await deleteDoc(doc(dbFirestore, `artifacts/${appId}/public/data/products`, productId));
+            cart = cart.filter(item => item.id !== productId); // Remove from cart
+            updateCartCounter(); // Update cart counter
+            showToast(translations[currentLanguage].productDeletedSuccess, 'success');
+        } catch (error) {
+            console.error("Error deleting product: ", error);
+            showToast("Error deleting product.", 'error');
+        }
+    }
+
+    // --- Image Upload Functions (for header and logo images) ---
+    async function updateAppImage(elementId, fileInputId, isHeader = false) {
+        if (!isAuthReady) return;
+        const fileInput = document.getElementById(fileInputId);
+        
+        readImageFileAndCrop(fileInput, async (croppedImageBase64) => {
+            if (croppedImageBase64) {
+                const imageType = isHeader ? 'headerImage' : (elementId === 'main-logo-image' ? 'mainLogo' : 'headerLeftLogo');
+                try {
+                    showToast(translations[currentLanguage].savingChanges, 'loading', 0); // Show saving changes toast
+                    // Corrected Firestore path: added 'config' document ID
+                    await setDoc(doc(dbFirestore, `artifacts/${appId}/public/data/appSettings/config`), {
+                        [imageType]: croppedImageBase64
+                    }, { merge: true });
+                    document.getElementById(elementId).src = croppedImageBase64; // Use the passed croppedImageBase64
+                    if (elementId === 'header-left-logo-image') {
+                        cartHeaderLeftLogoImageEl.src = croppedImageBase64; // Use the passed croppedImageBase64
+                    }
+                    showToast(translations[currentLanguage].imageUploadSuccess, 'success');
+                } catch (error) {
+                    console.error("Error updating image: ", error);
+                    showToast(translations[currentLanguage].imageUploadError, 'error');
+                }
+            } else {
+                // User cancelled cropping or no file selected, toast already shown by readImageFileAndCrop
+            }
+        });
+    }
+
+    async function fetchAppImages() {
+        if (!isAuthReady) return;
+        try {
+            // Corrected Firestore path: added 'config' document ID
+            const appSettingsRef = doc(dbFirestore, `artifacts/${appId}/public/data/appSettings/config`);
+            onSnapshot(appSettingsRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.headerImage) {
+                        mainHeaderImageEl.src = data.headerImage;
+                    }
+                    if (data.mainLogo) {
+                        mainLogoImageEl.src = data.mainLogo;
+                    }
+                    if (data.headerLeftLogo) {
+                        headerLeftLogoImageEl.src = data.headerLeftLogo;
+                        cartHeaderLeftLogoImageEl.src = data.headerLeftLogo;
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Error fetching app images: ", error);
+        }
+    }
+
+    // Function to send order details to WhatsApp
+    function sendOrderToWhatsApp() {
+        const phoneNumber = '+201055659049'; // الرقم اللي طلبته
+        let orderDetails = `مرحباً، أود عمل طلب جديد:\n\n`;
+        let subtotal = 0;
+
+        cart.forEach((item, index) => {
+            orderDetails += `${index + 1}. ${item.name[currentLanguage]} (الكمية: ${item.quantity}) - السعر: ج.م ${item.price.toFixed(3)}\n`;
+            subtotal += item.price * item.quantity;
+        });
+
+        orderDetails += `\nالمجموع الكلي: ج.م ${subtotal.toFixed(3)}\n`;
+        orderDetails += `\nيرجى تأكيد الطلب وتفاصيل التوصيل.`;
+
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(orderDetails)}`;
+        window.open(whatsappUrl, '_blank');
+    }
+
+
+    // --- Firebase Auth and Data Loading ---
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            userId = user.uid;
+            isAuthReady = true;
+            console.log("Firebase authenticated. User ID:", userId);
+            // Fetch initial data after authentication
+            fetchCategories();
+            fetchProducts();
+            fetchAppImages();
+        } else {
+            // Sign in using custom token or anonymously
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                    console.log("Signed in with custom token.");
+                } else {
+                    await signInAnonymously(auth);
+                    console.log("Signed in anonymously.");
+                }
+            } catch (error) {
+                console.error("Error signing in:", error);
+                showToast("Error signing in. Please try again.", 'error');
+            }
+        }
+    });
+
+    // Event listener for when the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        // Apply initial theme and language
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+        }
+        applyTranslations(); // Apply initial translations based on stored language
+
+        // Setup existing modals
+        document.getElementById('nav-btn-cart').addEventListener('click', window.showCartPage);
+        document.getElementById('back-to-main-btn').addEventListener('click', window.showMainPage);
+        setupModal('nav-btn-more', 'close-more-menu', 'more-menu-container');
+
+        // Setup About Us Modal
+        const aboutUsModal = setupModal('open-about-us-modal-btn', 'close-about-us-modal', 'about-us-modal-container');
+        // Close the "More Menu" when "About Us" is opened
+        openAboutUsModalBtn.addEventListener('click', () => {
+            moreMenuContainer.classList.add('hidden');
+            aboutUsModal.open();
+        });
+
+
+        // Language Toggle Event Listener
+        languageToggleBtn.addEventListener('click', () => {
+            setLanguage(currentLanguage === 'ar' ? 'en' : 'ar');
+        });
+
+        // Theme Toggle Event Listener
+        themeToggleBtn.addEventListener('click', toggleDarkMode);
+
+        // Setup Add Category Modal
+        const addCategoryModal = setupModal(addCategoryBtn.id, 'close-add-category-modal', 'add-category-modal-container');
+        saveCategoryBtn.addEventListener('click', async () => {
+            const categoryNameAr = newCategoryNameArInput.value.trim();
+            const categoryNameEn = newCategoryNameEnInput.value.trim();
+            if (categoryNameAr && categoryNameEn) {
+                await addCategory(categoryNameAr, categoryNameEn);
+                newCategoryNameArInput.value = ''; // Clear input
+                newCategoryNameEnInput.value = ''; // Clear input
+                addCategoryModal.close(); // Close modal
+            } else {
+                showToast(translations[currentLanguage].enterCategoryNameError, 'error');
+            }
+        });
+
+        // Setup Edit Category Modal
+        setupModal(null, 'close-edit-category-modal', 'edit-category-modal-container'); // open is triggered by openEditCategoryModal
+        saveEditedCategoryBtn.addEventListener('click', saveEditedCategory);
+
+        // Setup Add Product Modal
+        const addProductModal = setupModal(addProductBtn.id, 'close-add-product-modal', 'add-product-modal-container');
+        addProductBtn.addEventListener('click', () => {
+            populateProductCategoryDropdowns(); // Ensure dropdown is up-to-date when opening
+            // Clear previous inputs and hide preview
+            newProductNameArInput.value = '';
+            newProductNameEnInput.value = '';
+            newProductDescArInput.value = '';
+            newProductDescEnInput.value = '';
+            newProductPriceInput.value = '';
+            newProductImgInput.value = '';
+            newProductImgFileInput.value = '';
+            newProductImgPreview.src = '';
+            newProductImgPreview.classList.add('hidden');
+            addProductModal.open();
+        });
+
+        // Listen for file selection in Add Product Modal
+        newProductImgFileInput.addEventListener('change', (event) => {
+            readImageFileAndCrop(event.target, (croppedImageBase64) => {
+                if (croppedImageBase64) {
+                    newProductImgPreview.src = croppedImageBase64;
+                    newProductImgPreview.classList.remove('hidden');
+                    newProductImgInput.value = ''; // Clear URL input if file is chosen
+                } else {
+                    newProductImgPreview.src = '';
+                    newProductImgPreview.classList.add('hidden');
+                }
+            });
+        });
+        // Listen for URL input in Add Product Modal
+        newProductImgInput.addEventListener('input', () => {
+            if (newProductImgInput.value) {
+                newProductImgFileInput.value = ''; // Clear file input if URL is entered
+                newProductImgPreview.src = newProductImgInput.value;
+                newProductImgPreview.classList.remove('hidden');
+            } else {
+                newProductImgPreview.classList.add('hidden');
+                newProductImgPreview.src = '';
+            }
+        });
+
+        saveProductBtn.addEventListener('click', async () => {
+            const productNameAr = newProductNameArInput.value.trim();
+            const productNameEn = newProductNameEnInput.value.trim();
+            const productDescAr = newProductDescArInput.value.trim();
+            const productDescEn = newProductDescEnInput.value.trim();
+            const productPrice = parseFloat(newProductPriceInput.value);
+            const productImgUrl = newProductImgInput.value.trim();
+            const productFile = newProductImgFileInput.files[0];
+            const productCategory = newProductCategorySelect.value;
+
+            if (productNameAr && productNameEn && productDescAr && productDescEn && !isNaN(productPrice) && productPrice > 0 && productCategory) {
+                let finalImgSource = 'https://placehold.co/400x300/f0f0f0/333?text=No+Image'; // Default placeholder
+
+                if (productFile) {
+                    // If a file was selected and cropped, use the preview's src
+                    finalImgSource = newProductImgPreview.src; // This will be the compressed image
+                } else if (productImgUrl) {
+                    // Use URL if provided
+                    finalImgSource = productImgUrl;
+                }
+
+                const productData = {
+                    name: { ar: productNameAr, en: productNameEn },
+                    desc: { ar: productDescAr, en: productDescEn },
+                    price: productPrice,
+                    img: finalImgSource,
+                    category: productCategory
+                };
+                await addProduct(productData);
+                // Clear inputs and hide preview
+                newProductNameArInput.value = '';
+                newProductNameEnInput.value = '';
+                newProductDescArInput.value = '';
+                newProductDescEnInput.value = '';
+                newProductPriceInput.value = '';
+                newProductImgInput.value = '';
+                newProductImgFileInput.value = '';
+                newProductImgPreview.src = '';
+                newProductImgPreview.classList.add('hidden');
+                addProductModal.close(); // Close modal
+            } else {
+                showToast(translations[currentLanguage].fillAllFieldsError, 'error');
+            }
+        });
+
+        // Setup Edit Product Modal
+        setupModal(null, 'close-edit-product-modal', 'edit-product-modal-container'); // open is triggered by openEditProductModal
+
+        // Listen for file selection in Edit Product Modal
+        editProductImgFileInput.addEventListener('change', (event) => {
+            readImageFileAndCrop(event.target, (croppedImageBase64) => {
+                if (croppedImageBase64) {
+                    editProductImgPreview.src = croppedImageBase64;
+                    editProductImgPreview.classList.remove('hidden');
+                    editProductImgInput.value = ''; // Clear URL input if file is chosen
+                } else {
+                    editProductImgPreview.src = '';
+                    editProductImgPreview.classList.add('hidden');
+                }
+            });
+        });
+        // Listen for URL input in Edit Product Modal
+        editProductImgInput.addEventListener('input', () => {
+            if (editProductImgInput.value) {
+                editProductImgFileInput.value = ''; // Clear file input if URL is entered
+                editProductImgPreview.src = editProductImgInput.value;
+                editProductImgPreview.classList.remove('hidden');
+            } else {
+                editProductImgPreview.classList.add('hidden');
+                editProductImgPreview.src = '';
+            }
+        });
+        saveEditedProductBtn.addEventListener('click', saveEditedProduct);
+
+        // --- Main Header and Logo Image Editing ---
+        // Header Image Edit (both button and image click)
+        editHeaderImageBtn.addEventListener('click', () => headerImageInput.click());
+        mainHeaderImageEl.addEventListener('click', () => {
+            if (isAdmin) headerImageInput.click(); // Only allow click if admin
+        }); 
+        headerImageInput.addEventListener('change', (event) => {
+            updateAppImage('main-header-image', 'header-image-input', true);
+        });
+
+        // Logo Image Edit (only image click)
+        mainLogoWrapper.addEventListener('click', () => { // Use wrapper for click
+            if (isAdmin) logoImageInput.click(); // Only allow click if admin
+        }); 
+        logoImageInput.addEventListener('change', (event) => {
+            updateAppImage('main-logo-image', 'logo-image-input');
+        });
+
+        // --- Header Left Logo Edit ---
+        headerLeftLogoWrapper.addEventListener('click', () => { // Use wrapper for click
+            if (isAdmin) headerLeftLogoInput.click(); // Only allow click if admin
+        });
+        headerLeftLogoInput.addEventListener('change', (event) => {
+            updateAppImage('header-left-logo-image', 'header-left-logo-input');
+        });
+
+        // --- Login Modal Setup ---
+        const loginModal = setupModal(null, 'close-login-modal', 'login-modal-container'); // No open button ID, triggered by nav-btn-profile
+        const adminProfileModal = setupModal(null, 'close-admin-profile-modal', 'admin-profile-modal-container');
+
+        document.getElementById('nav-btn-profile').addEventListener('click', () => {
+            if (isAdmin) {
+                adminProfileModal.open(); // Show admin profile modal if logged in as admin
+            } else {
+                loginEmailInput.value = ''; // Clear inputs
+                loginPasswordInput.value = ''; // Clear inputs
+                loginModal.open(); // Show login modal if not logged in
+            }
+        });
+
+        // Login button functionality
+        loginBtn.addEventListener('click', () => {
+            const email = loginEmailInput.value;
+            const password = loginPasswordInput.value;
+            
+            // Admin credentials
+            const adminEmail = 'abdo@gmail.com';
+            const adminPassword = '334411';
+
+            if (email === adminEmail && password === adminPassword) {
+                isAdmin = true;
+                toggleAdminControls(true); // Show admin controls
+                loginModal.close(); // Close login modal
+                showToast(translations[currentLanguage].loginSuccessMessage(email), 'success');
+            } else {
+                isAdmin = false;
+                toggleAdminControls(false); // Hide admin controls
+                showToast(translations[currentLanguage].loginErrorMessage, 'error');
+            }
+        });
+
+        // Logout button functionality
+        logoutBtn.addEventListener('click', () => {
+            confirmAction(translations[currentLanguage].logoutConfirmTitle, translations[currentLanguage].logoutConfirmMessage, () => {
+                isAdmin = false;
+                toggleAdminControls(false); // Hide admin controls
+                adminProfileModal.close(); // Close admin profile modal
+                showToast(translations[currentLanguage].logoutSuccessMessage, 'success');
+            });
+        });
+
+        // Create Account link functionality (placeholder)
+        createAccountLink.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent default link behavior
+            confirmAction(translations[currentLanguage].createAccountTitle, translations[currentLanguage].createAccountMessage, () => {
+                loginModal.close();
+            });
+        });
+
+    });
+
+    // Expose functions to the global scope for onclick attributes
+    window.addToCart = addToCart;
+    window.openEditProductModal = openEditProductModal;
+    window.updateQuantity = updateQuantity;
+    window.removeFromCart = removeFromCart;
+    window.changeCategory = changeCategory;
+    window.confirmAction = confirmAction;
+    window.deleteProduct = deleteProduct; // Make deleteProduct globally accessible
+    window.openEditCategoryModal = openEditCategoryModal; // Make openEditCategoryModal globally accessible
+    window.deleteCategory = deleteCategory; // Make deleteCategory globally accessible
+    window.showMainPage = showMainPage;
+    window.showCartPage = showCartPage;
+    </script>
+</body>
+</html>
